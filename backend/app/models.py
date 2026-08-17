@@ -20,7 +20,7 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -151,8 +151,29 @@ class SpotTag(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
     spot_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("spots.id", ondelete="CASCADE"), nullable=False)
     tag: Mapped[str] = mapped_column(Text, nullable=False)
+    origin: Mapped[str] = mapped_column(Text, server_default="manual")  # manual / ai
+    confidence: Mapped[float | None] = mapped_column(Numeric(4, 3))
 
     spot: Mapped[Spot] = relationship(back_populates="tags")
+
+
+class SpotAnalysis(Base):
+    __tablename__ = "spot_analyses"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    spot_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("spots.id", ondelete="CASCADE"), nullable=False, unique=True)
+    summary: Mapped[str | None] = mapped_column(Text)
+    categories: Mapped[list] = mapped_column(JSONB, server_default="[]")
+    tags: Mapped[list] = mapped_column(JSONB, server_default="[]")
+    best_season: Mapped[list] = mapped_column(JSONB, server_default="[]")
+    travel_types: Mapped[list] = mapped_column(JSONB, server_default="[]")
+    food_tags: Mapped[list] = mapped_column(JSONB, server_default="[]")
+    confidence: Mapped[float] = mapped_column(Numeric(4, 3), server_default="0")
+    evidence: Mapped[str | None] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    reviewed: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    override: Mapped[dict | None] = mapped_column(JSONB)
 
 
 class FoodTag(Base):

@@ -28,6 +28,28 @@ class SpotOut(BaseModel):
     lat: float | None = None
     lng: float | None = None
     distance_m: float | None = None
+    # AI analysis (MVP3) — kept clearly separate from source fields.
+    ai_summary: str | None = None
+    tags: list[str] = []
+    travel_types: list[str] = []
+    ai_confidence: float | None = None
+    trend_score: float | None = None
+
+
+class AnalysisOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    spot_id: uuid.UUID
+    summary: str | None = None
+    categories: list[str] = []
+    tags: list[str] = []
+    best_season: list[str] = []
+    travel_types: list[str] = []
+    food_tags: list[str] = []
+    confidence: float = 0
+    evidence: str | None = None
+    model: str
+    reviewed: bool = False
 
 
 class RestaurantOut(BaseModel):

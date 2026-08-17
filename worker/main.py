@@ -1,20 +1,46 @@
-"""Worker service entrypoint (MVP0 skeleton).
+"""Worker service entrypoint: runs AI analysis (MVP3) and, later, ranking (MVP4).
 
-Background jobs (normalization, AI analysis, ranking) are added from MVP2
-onward. For MVP0 this is a healthy idle process so the compose stack is
-complete and reproducible.
+Modes:
+  RUN_MODE=once      -> run the pending jobs a single time and exit
+  RUN_MODE=schedule  -> run, then repeat every WORKER_INTERVAL_SECONDS
 """
 
 import os
 import time
 
+import db as dbmod
+from analyzer import analyze
+
+
+def run_analysis_once() -> int:
+    conn = dbmod.connect()
+    analyzed = 0
+    try:
+        spots = dbmod.fetch_spots_needing_analysis(conn)
+        for spot_id, name, description, category in spots:
+            result = analyze(name, description, category)
+            dbmod.upsert_analysis(conn, spot_id, result)
+            analyzed += 1
+        print(f"[worker] analysis done. analyzed={analyzed}", flush=True)
+        return analyzed
+    finally:
+        conn.close()
+
 
 def main() -> None:
-    db_url = os.environ.get("DATABASE_URL", "<unset>")
-    print(f"[worker] started. DATABASE_URL={db_url}", flush=True)
-    print("[worker] MVP0 skeleton — no jobs scheduled yet.", flush=True)
+    mode = os.environ.get("RUN_MODE", "schedule")
+    interval = int(os.environ.get("WORKER_INTERVAL_SECONDS", str(3600)))
+
+    if mode == "once":
+        run_analysis_once()
+        return
+
     while True:
-        time.sleep(3600)
+        try:
+            run_analysis_once()
+        except Exception as exc:
+            print(f"[worker] analysis failed: {exc}", flush=True)
+        time.sleep(interval)
 
 
 if __name__ == "__main__":

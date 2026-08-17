@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.db import engine
-from app.routers import restaurants, search, spots
+from app.routers import admin, restaurants, search, spots
 
 settings = get_settings()
 
@@ -17,6 +17,7 @@ API_PREFIX = "/api/v1"
 app.include_router(spots.router, prefix=API_PREFIX)
 app.include_router(restaurants.router, prefix=API_PREFIX)
 app.include_router(search.router, prefix=API_PREFIX)
+app.include_router(admin.router, prefix=API_PREFIX)
 
 app.add_middleware(
     CORSMiddleware,
