@@ -12,6 +12,7 @@ from datetime import datetime
 from geoalchemy2 import Geography
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
     ForeignKey,
     Integer,
@@ -155,6 +156,36 @@ class SpotTag(Base):
     confidence: Mapped[float | None] = mapped_column(Numeric(4, 3))
 
     spot: Mapped[Spot] = relationship(back_populates="tags")
+
+
+class TrendScore(Base):
+    __tablename__ = "trend_scores"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    spot_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("spots.id", ondelete="CASCADE"), nullable=False)
+    score_date: Mapped[object] = mapped_column(Date, nullable=False)
+    trend_score: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
+    growth_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    engagement_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    recency_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    seasonality_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    source_diversity_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    novelty_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    data_confidence_score: Mapped[float] = mapped_column(Numeric(6, 2), server_default="0")
+    sample_size: Mapped[int] = mapped_column(Integer, server_default="0")
+    is_reference: Mapped[bool] = mapped_column(Boolean, server_default="false")
+
+
+class Observation(Base):
+    __tablename__ = "observations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    entity_type: Mapped[str] = mapped_column(Text, nullable=False)
+    entity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    metric: Mapped[str] = mapped_column(Text, nullable=False)
+    value: Mapped[float] = mapped_column(Numeric, nullable=False)
+    observed_at: Mapped[object] = mapped_column(Date, nullable=False)
+    source_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("sources.id"))
 
 
 class SpotAnalysis(Base):

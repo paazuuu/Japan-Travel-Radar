@@ -52,6 +52,27 @@ class AnalysisOut(BaseModel):
     reviewed: bool = False
 
 
+class RankingItem(BaseModel):
+    id: uuid.UUID
+    name: str
+    category: str | None = None
+    prefecture_id: uuid.UUID | None = None
+    lat: float | None = None
+    lng: float | None = None
+    ai_summary: str | None = None
+    ai_confidence: float | None = None
+    trend_score: float
+    growth_score: float
+    engagement_score: float
+    recency_score: float
+    seasonality_score: float
+    source_diversity_score: float
+    novelty_score: float
+    data_confidence_score: float
+    is_reference: bool
+    score_date: str
+
+
 class RestaurantOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

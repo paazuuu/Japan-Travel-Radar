@@ -10,6 +10,7 @@ import time
 
 import db as dbmod
 from analyzer import analyze
+from ranking import run_ranking_once
 
 
 def run_analysis_once() -> int:
@@ -33,13 +34,15 @@ def main() -> None:
 
     if mode == "once":
         run_analysis_once()
+        run_ranking_once()
         return
 
     while True:
         try:
             run_analysis_once()
+            run_ranking_once()
         except Exception as exc:
-            print(f"[worker] analysis failed: {exc}", flush=True)
+            print(f"[worker] job failed: {exc}", flush=True)
         time.sleep(interval)
 
 

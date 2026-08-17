@@ -61,6 +61,17 @@ def stats(db: Session = Depends(get_db)) -> dict:
     return counts[0] if counts else {}
 
 
+@router.get("/spots/{spot_id}/score")
+def score_breakdown(spot_id: uuid.UUID, db: Session = Depends(get_db)) -> list[dict]:
+    """Trend Score component breakdown for a spot (06: 内訳を管理画面で確認)."""
+    return _rows(db, """
+        SELECT score_date, trend_score, growth_score, engagement_score, recency_score,
+               seasonality_score, source_diversity_score, novelty_score,
+               data_confidence_score, sample_size, is_reference
+        FROM trend_scores WHERE spot_id = :id ORDER BY score_date DESC LIMIT 30
+    """, {"id": str(spot_id)})
+
+
 @router.patch("/spots/{spot_id}")
 def override_spot(spot_id: uuid.UUID, payload: dict = Body(...), db: Session = Depends(get_db)) -> dict:
     """Human override of source/AI fields (12: 管理者が公開状態等を修正)."""
