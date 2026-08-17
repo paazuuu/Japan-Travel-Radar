@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.db import engine
+from app.routers import restaurants, search, spots
 
 settings = get_settings()
 
@@ -11,6 +12,11 @@ app = FastAPI(
     title="Japan Travel AI Radar — Backend",
     version="0.1.0",
 )
+
+API_PREFIX = "/api/v1"
+app.include_router(spots.router, prefix=API_PREFIX)
+app.include_router(restaurants.router, prefix=API_PREFIX)
+app.include_router(search.router, prefix=API_PREFIX)
 
 app.add_middleware(
     CORSMiddleware,

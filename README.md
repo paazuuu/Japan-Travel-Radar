@@ -8,9 +8,11 @@
 
 推奨開発順（`00_README.md`）に沿って一つずつ進めています。
 
-- [x] **MVP0 — 開発基盤 / Docker環境**（本ドキュメントのセットアップ対象）
-- [ ] MVP1 — DB (PostgreSQL/PostGIS スキーマ)
-- [ ] MVP2 — 収集エンジン
+計画は planning-with-files 方式で `task_plan.md` / `progress.md` / `findings.md` に永続化しています。
+
+- [x] **MVP0 — 開発基盤 / Docker環境**
+- [x] **MVP1 — DB (PostgreSQL/PostGIS スキーマ・地理検索・関西seed)**
+- [ ] MVP2 — 収集エンジン（次のステップ）
 - [ ] MVP3 — AI分析
 - [ ] MVP4 — Ranking
 - [ ] MVP5 — Map/Web
@@ -46,7 +48,24 @@ docker compose up -d --build
 # 3. 動作確認
 curl http://localhost:8000/health      # backend + DB + PostGIS
 open  http://localhost:3000            # frontend が health を表示
+
+# 4. MVP1: コアスキーマ + 関西seed を投入し、地理検索を確認
+./scripts/seed.sh
+curl "http://localhost:8000/api/v1/spots/nearby?lat=34.6873&lng=135.5259&radius=3000"
+curl "http://localhost:8000/api/v1/restaurants/nearby?lat=34.6687&lng=135.5013&fish=true"
+curl "http://localhost:8000/api/v1/search?q=京都"
 ```
+
+### API (MVP1, base `/api/v1`)
+
+| Method | Path | 説明 |
+|---|---|---|
+| GET | `/spots` | 一覧（category / prefecture_id / pagination） |
+| GET | `/spots/{id}` | 詳細 |
+| GET | `/spots/nearby` | 近傍検索（lat/lng/radius[m]、距離順） |
+| GET | `/restaurants` | 一覧（category / fish フィルタ） |
+| GET | `/restaurants/nearby` | 近傍検索（fish / local_specialty / max_price） |
+| GET | `/search?q=` | スポット名・説明の部分一致検索 |
 
 ### 完了条件 (02_MVP0_INFRASTRUCTURE.md)
 
