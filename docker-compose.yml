@@ -40,6 +40,9 @@ services:
     build: ./frontend
     restart: unless-stopped
     environment:
+      # server-side (SSR) reaches backend over the docker network
+      BACKEND_URL: http://backend:8000
+      # browser-side (client components / map) reaches backend via the host
       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
     depends_on:
       - backend

@@ -36,9 +36,18 @@
   - tests/test_api_routes.py, scripts/seed.sh
   - task_plan.md / progress.md / findings.md（planning-with-files）
 
-### Phase 3: MVP2 — Collector
-- **Status:** in_progress（次に着手）
-- 予定: Collector/Scheduler/Normalizer/Deduplicator/Validator/Logs、実データ収集でスポット100件+へ
+### Phase 3-6: MVP2–MVP5（2026-08-17 一括実装）
+- **MVP2 収集エンジン:** collector(sources5種/normalizer/dedup/validator/runner)、
+  raw_items/collector_runs/collection_errors、fixturesで日次ジョブ成功、provenance列
+- **MVP3 AI分析:** worker/analyzer(ルールベース, structured output固定, confidence)、
+  spot_analyses(原情報と分離)、spot_tags origin(manual/ai)、admin override/review
+- **MVP4 Ranking:** worker/scorer(重み式 Trend Score, 各成分0-100, is_reference)、
+  observations/trend_scores、rankings API(trending/rising/new/seasonal/popular/food)、admin内訳
+- **MVP5 Web UI:** Next.js App Router — Home/Ranking/Map(Leaflet+OSM)/Food/Spot詳細/Admin、
+  モバイル優先、出典・更新日時表示、AI要約と公式情報の区別。`npm run build` 成功(6 routes)
+- **テスト:** pytest 19 passed（collector 5 / analyzer 5 / scorer 5 / routes 2 / health 2）
+- **検証保留:** docker daemon 不在のため DB実クエリ/collector・worker実行/フロント実起動は未実施。
+  ローカルで scripts/{seed,collect,analyze,rank}.sh + docker compose で確認可能。
 
 ## Test Results
 | Test | Input | Expected | Actual | Status |

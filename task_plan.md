@@ -8,11 +8,10 @@
 「最初の実用MVP」（関西100スポット + 50飲食店 + 5情報源 + AIタグ + Trend Score + Dashboard）を完成させる。
 
 ## Next Step
-MVP2→MVP5 を一気に実装する（ユーザー指示）。各MVPごとにコミット&push。
-現在: MVP2（収集エンジン）に着手。
+MVP5 まで完了・push済み。次はユーザー指示待ち（候補: MVP6 AI旅行プランナー）。
 
 ## Current Phase
-Phase 3-6 (MVP2..MVP5) を連続実装中
+Phase 7 (MVP6: Planner) — 未着手
 
 ## Phases
 
@@ -35,20 +34,25 @@ Phase 3-6 (MVP2..MVP5) を連続実装中
 - **Status:** complete（100件到達は MVP2 へ委譲）
 
 ### Phase 3: MVP2 — Collector
-- [ ] Collector / Scheduler / Normalizer / Deduplicator / Validator / Logs
-- **Status:** in_progress（次に着手）
+- [x] Collector / Normalizer / Deduplicator / Validator / Runner / Logs
+- [x] sources 5種(tourism/government/events opendata + rss + youtube)、fixtures
+- [x] raw_items / collector_runs / collection_errors、spots に provenance列
+- **Status:** complete
 
 ### Phase 4: MVP3 — AI Analysis
-- [ ] Summary / Category / Tags / Season / Food attributes / Confidence / Human override
-- **Status:** pending
+- [x] Summary / Category / Tags / Season / Travel type / Food attributes / Confidence
+- [x] structured output固定、spot_analyses で原情報と分離、人間override(admin)
+- **Status:** complete
 
 ### Phase 5: MVP4 — Ranking
-- [ ] Trend score / Growth / Ranking / Category ranking / Daily update
-- **Status:** pending
+- [x] Trend score(重み式) / Growth / Ranking / Category ranking / Daily update
+- [x] observations / trend_scores(内訳) / is_reference、admin内訳、rankings API
+- **Status:** complete
 
 ### Phase 6: MVP5 — Map / Web
-- [ ] Dashboard / Map / Spot detail / Ranking / Search / Filters
-- **Status:** pending
+- [x] Dashboard / Map(Leaflet+OSM) / Spot detail / Ranking / Food / Admin
+- [x] モバイル優先、出典/更新日時表示、AI要約と公式情報の区別、build成功
+- **Status:** complete
 
 ### Phase 7: MVP6 — Travel Planner
 - [ ] Constraint parsing / Candidate search / Route / Budget / Validation / Saved plan

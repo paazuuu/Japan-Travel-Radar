@@ -12,7 +12,11 @@
 
 - [x] **MVP0 — 開発基盤 / Docker環境**
 - [x] **MVP1 — DB (PostgreSQL/PostGIS スキーマ・地理検索・関西seed)**
-- [ ] MVP2 — 収集エンジン（次のステップ）
+- [x] **MVP2 — 収集エンジン (sources5種 / normalize / dedup / validate / logs)**
+- [x] **MVP3 — AI分析 (要約・分類・タグ・季節・食属性・confidence・人間override)**
+- [x] **MVP4 — Ranking (Trend Score・急上昇・季節・食・内訳)**
+- [x] **MVP5 — Map/Web UI (Dashboard/Map/Ranking/Food/Spot/Admin)**
+- [ ] MVP6 — AI旅行プランナー（次のステップ）
 - [ ] MVP3 — AI分析
 - [ ] MVP4 — Ranking
 - [ ] MVP5 — Map/Web
