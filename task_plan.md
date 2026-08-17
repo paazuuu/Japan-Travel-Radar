@@ -8,11 +8,11 @@
 「最初の実用MVP」（関西100スポット + 50飲食店 + 5情報源 + AIタグ + Trend Score + Dashboard）を完成させる。
 
 ## Next Step
-MVP2（Phase 3）: 情報収集エンジン（Collector/Scheduler/Normalizer/Deduplicator/
-Validator/Logs）を実装し、seed を実データ収集へ拡張する（スポット100件+へ）。
+MVP2→MVP5 を一気に実装する（ユーザー指示）。各MVPごとにコミット&push。
+現在: MVP2（収集エンジン）に着手。
 
 ## Current Phase
-Phase 3 (MVP2: Collector) — 次に着手
+Phase 3-6 (MVP2..MVP5) を連続実装中
 
 ## Phases
 

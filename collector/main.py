@@ -1,20 +1,31 @@
-"""Collector service entrypoint (MVP0 skeleton).
+"""Collector service entrypoint.
 
-Real collection logic arrives in MVP2 (04_MVP2_COLLECTOR.md). For MVP0 this
-just verifies the container builds and can reach PostgreSQL, then idles so the
-compose stack stays healthy.
+Modes:
+  RUN_MODE=once      -> run the pipeline a single time and exit (used by scripts/cron)
+  RUN_MODE=schedule  -> run once, then every COLLECT_INTERVAL_SECONDS (default daily)
+Default is 'schedule' so the compose service stays up and runs the daily job.
 """
 
 import os
 import time
 
+from runner import main as run_once
+
 
 def main() -> None:
-    db_url = os.environ.get("DATABASE_URL", "<unset>")
-    print(f"[collector] started. DATABASE_URL={db_url}", flush=True)
-    print("[collector] MVP0 skeleton — no sources configured yet.", flush=True)
+    mode = os.environ.get("RUN_MODE", "schedule")
+    interval = int(os.environ.get("COLLECT_INTERVAL_SECONDS", str(24 * 3600)))
+
+    if mode == "once":
+        run_once()
+        return
+
     while True:
-        time.sleep(3600)
+        try:
+            run_once()
+        except Exception as exc:  # never let the loop die
+            print(f"[collector] run failed: {exc}", flush=True)
+        time.sleep(interval)
 
 
 if __name__ == "__main__":
