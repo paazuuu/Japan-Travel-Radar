@@ -1,0 +1,15 @@
+{
+  "name": "Japan Travel AI Radar",
+  "short_name": "Travel Radar",
+  "description": "今行く価値のある場所を発見する旅行インテリジェンス",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

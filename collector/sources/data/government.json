@@ -1,0 +1,12 @@
+[
+  {"external_id": "g-osaka-science", "name": "大阪市立科学館", "prefecture_code": "27", "lat": 34.6917, "lng": 135.4906, "category": "culture", "subcategory": "museum", "description": "科学とプラネタリウム。", "official_url": "https://www.sci-museum.jp/"},
+  {"external_id": "g-nmao", "name": "国立国際美術館", "prefecture_code": "27", "lat": 34.6918, "lng": 135.4915, "category": "culture", "subcategory": "art-museum", "description": "現代美術を中心とする美術館。", "official_url": "https://www.nmao.go.jp/"},
+  {"external_id": "g-kyoto-museum", "name": "京都国立博物館", "prefecture_code": "26", "lat": 34.9902, "lng": 135.7730, "category": "culture", "subcategory": "museum", "description": "京都の国立博物館。", "official_url": "https://www.kyohaku.go.jp/"},
+  {"external_id": "g-kyoto-botanical", "name": "京都府立植物園", "prefecture_code": "26", "lat": 35.0490, "lng": 135.7620, "category": "nature", "subcategory": "garden", "description": "四季の植物園。", "official_url": null},
+  {"external_id": "g-hyogo-art", "name": "兵庫県立美術館", "prefecture_code": "28", "lat": 34.7000, "lng": 135.2210, "category": "culture", "subcategory": "art-museum", "description": "安藤忠雄設計の美術館。", "official_url": "https://www.artm.pref.hyogo.jp/"},
+  {"external_id": "g-nara-museum", "name": "奈良国立博物館", "prefecture_code": "29", "lat": 34.6870, "lng": 135.8380, "category": "culture", "subcategory": "museum", "description": "仏教美術で有名。", "official_url": "https://www.narahaku.go.jp/"},
+  {"external_id": "g-biwako-museum", "name": "滋賀県立琵琶湖博物館", "prefecture_code": "25", "lat": 35.0060, "lng": 135.9270, "category": "culture", "subcategory": "museum", "description": "琵琶湖の自然と歴史。", "official_url": "https://www.biwahaku.jp/"},
+  {"external_id": "g-wakayama-art", "name": "和歌山県立近代美術館", "prefecture_code": "30", "lat": 34.2270, "lng": 135.1710, "category": "culture", "subcategory": "art-museum", "description": "近現代美術のコレクション。", "official_url": null},
+  {"external_id": "g-nakanoshima-lib", "name": "大阪府立中之島図書館", "prefecture_code": "27", "lat": 34.6930, "lng": 135.5010, "category": "culture", "subcategory": "architecture", "description": "重要文化財の図書館建築。", "official_url": null},
+  {"external_id": "g-himeji-koko", "name": "兵庫県立考古博物館", "prefecture_code": "28", "lat": 34.7160, "lng": 134.9200, "category": "culture", "subcategory": "museum", "description": "播磨の考古資料。", "official_url": null}
+]

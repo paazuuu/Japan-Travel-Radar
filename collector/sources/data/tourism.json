@@ -1,0 +1,14 @@
+[
+  {"external_id": "t-tenpozan", "name": "天保山大観覧車", "prefecture_code": "27", "lat": 34.6558, "lng": 135.4319, "category": "sightseeing", "subcategory": "ferriswheel", "description": "大阪湾を望む大観覧車。", "official_url": "https://www.senyo.co.jp/tempozan/"},
+  {"external_id": "t-harukas", "name": "あべのハルカス", "prefecture_code": "27", "lat": 34.6457, "lng": 135.5136, "category": "sightseeing", "subcategory": "tower", "description": "日本有数の超高層ビル・展望台。", "official_url": "https://www.abenoharukas-300.jp/"},
+  {"external_id": "t-minoo", "name": "箕面大滝", "prefecture_code": "27", "lat": 34.8540, "lng": 135.4720, "category": "nature", "subcategory": "waterfall", "description": "紅葉の名所と滝。", "official_url": null},
+  {"external_id": "t-amanohashidate", "name": "天橋立", "prefecture_code": "26", "lat": 35.5680, "lng": 135.1950, "category": "nature", "subcategory": "scenery", "description": "日本三景のひとつ。", "official_url": "https://www.amanohashidate.jp/"},
+  {"external_id": "t-kifune", "name": "貴船神社", "prefecture_code": "26", "lat": 35.1215, "lng": 135.7626, "category": "sightseeing", "subcategory": "shrine", "description": "水の神を祀る古社。", "official_url": "https://kifunejinja.jp/"},
+  {"external_id": "t-tenryuji", "name": "天龍寺", "prefecture_code": "26", "lat": 35.0159, "lng": 135.6738, "category": "sightseeing", "subcategory": "temple", "description": "嵐山の世界遺産。庭園が有名。", "official_url": "https://www.tenryuji.com/"},
+  {"external_id": "t-byodoin", "name": "平等院", "prefecture_code": "26", "lat": 34.8896, "lng": 135.8078, "category": "sightseeing", "subcategory": "temple", "description": "宇治の鳳凰堂。世界遺産。", "official_url": "https://www.byodoin.or.jp/"},
+  {"external_id": "t-kinosaki", "name": "城崎温泉", "prefecture_code": "28", "lat": 35.6260, "lng": 134.8055, "category": "onsen", "subcategory": "hotspring", "description": "外湯めぐりの温泉街。", "official_url": "https://kinosaki-spa.gr.jp/"},
+  {"external_id": "t-takeda", "name": "竹田城跡", "prefecture_code": "28", "lat": 35.3003, "lng": 134.8290, "category": "sightseeing", "subcategory": "castle-ruins", "description": "天空の城。雲海の名所。", "official_url": null},
+  {"external_id": "t-akashikaikyo", "name": "明石海峡大橋", "prefecture_code": "28", "lat": 34.6178, "lng": 135.0214, "category": "sightseeing", "subcategory": "bridge", "description": "世界最長級の吊り橋。", "official_url": null},
+  {"external_id": "t-wakayamacastle", "name": "和歌山城", "prefecture_code": "30", "lat": 34.2275, "lng": 135.1706, "category": "sightseeing", "subcategory": "castle", "description": "紀州徳川家の城。", "official_url": null},
+  {"external_id": "t-tomogashima", "name": "友ヶ島", "prefecture_code": "30", "lat": 34.2810, "lng": 135.0050, "category": "nature", "subcategory": "island", "description": "砲台跡が残る無人島。", "official_url": null}
+]
