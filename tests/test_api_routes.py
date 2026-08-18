@@ -32,6 +32,8 @@ def test_openapi_lists_mvp1_routes():
         "/api/v1/admin/errors",
         "/api/v1/rankings/{kind}",
         "/api/v1/admin/spots/{spot_id}/score",
+        "/api/v1/planner/generate",
+        "/api/v1/planner/{plan_id}",
     }
     missing = expected - set(paths)
     assert not missing, f"missing routes: {missing}"

@@ -49,6 +49,17 @@
 - **検証保留:** docker daemon 不在のため DB実クエリ/collector・worker実行/フロント実起動は未実施。
   ローカルで scripts/{seed,collect,analyze,rank}.sh + docker compose で確認可能。
 
+### Phase 7: MVP6 — AI旅行プランナー（2026-08-17）
+- **Status:** complete
+- planner engine(純粋関数): 制約解析(purpose→tags)/nearest-neighborルート/移動時間・
+  予算(交通per-person or 車共有/食事/入場)/スケジュール(08:00起点・昼食挿入)。DBの実データのみ
+- backend: /planner/generate（地理検索→候補ランキング→食検索→ルート→予算→保存→検証）、
+  /planner/{id}、travel_plans/travel_plan_items（再現可能な入力条件を保存）
+- frontend: /planner フォーム＆結果（時刻・費用内訳・各項目の出典リンク）
+- テスト: planner_engine 6（計 **24 passed**）。frontend build 成功(7 routes)
+- MVP成功条件「大阪発・日帰り・5000円・車なし・魚・絶景 → 根拠付きプラン」を実装で充足
+  （実行検証は要 docker; scripts/plan.sh で確認可能）
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|

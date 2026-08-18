@@ -8,10 +8,11 @@
 「最初の実用MVP」（関西100スポット + 50飲食店 + 5情報源 + AIタグ + Trend Score + Dashboard）を完成させる。
 
 ## Next Step
-MVP5 まで完了・push済み。次はユーザー指示待ち（候補: MVP6 AI旅行プランナー）。
+MVP6 まで完了・push済み。MVP成功条件（根拠付き旅行プラン生成）を実装で満たした。
+次はユーザー指示待ち（候補: MVP7 中国語コンテンツ / MVP8 PWA）。
 
 ## Current Phase
-Phase 7 (MVP6: Planner) — 未着手
+Phase 7 (MVP6: Planner) — complete
 
 ## Phases
 
@@ -55,8 +56,11 @@ Phase 7 (MVP6: Planner) — 未着手
 - **Status:** complete
 
 ### Phase 7: MVP6 — Travel Planner
-- [ ] Constraint parsing / Candidate search / Route / Budget / Validation / Saved plan
-- **Status:** pending
+- [x] Constraint parsing(purpose→tags) / Candidate search(地理+タグ+trend)
+- [x] Route(nearest-neighbor) / Budget(交通・食事・入場) / 検証 / Saved plan
+- [x] travel_plans/items、POST /planner/generate・GET /planner/{id}、/planner UI
+- [x] DBの実データのみ・各項目に出典（存在しない場所は追加しない）
+- **Status:** complete
 
 ### Phase 8: MVP7 — Chinese Content
 - [ ] Simplified Chinese / Xiaohongshu / WeChat / Video script / Human review

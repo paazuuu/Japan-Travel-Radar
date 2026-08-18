@@ -17,6 +17,7 @@ const links = [
   ["/ranking", "📈 Ranking"],
   ["/map", "🗺 Map"],
   ["/food", "🍣 Food"],
+  ["/planner", "🧳 Planner"],
   ["/admin", "⚙ Admin"],
 ];
 

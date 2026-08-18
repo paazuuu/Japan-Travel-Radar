@@ -16,7 +16,11 @@
 - [x] **MVP3 — AI分析 (要約・分類・タグ・季節・食属性・confidence・人間override)**
 - [x] **MVP4 — Ranking (Trend Score・急上昇・季節・食・内訳)**
 - [x] **MVP5 — Map/Web UI (Dashboard/Map/Ranking/Food/Spot/Admin)**
-- [ ] MVP6 — AI旅行プランナー（次のステップ）
+- [x] **MVP6 — AI旅行プランナー (制約解析→地理検索→ルート→予算→根拠付きプラン)**
+- [ ] MVP7 — 中国語コンテンツ / MVP8 — PWA（次のステップ）
+
+> MVP成功条件（`00_README.md`）:「大阪発・日帰り・5,000円・車なし・魚・絶景」の
+> 根拠付きプラン生成を実装済み（`./scripts/plan.sh` または `/planner` 画面）。
 - [ ] MVP3 — AI分析
 - [ ] MVP4 — Ranking
 - [ ] MVP5 — Map/Web

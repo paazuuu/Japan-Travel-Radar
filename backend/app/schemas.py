@@ -52,6 +52,47 @@ class AnalysisOut(BaseModel):
     reviewed: bool = False
 
 
+class PlanRequest(BaseModel):
+    origin: str = "大阪"
+    origin_lat: float | None = None
+    origin_lng: float | None = None
+    start_date: str | None = None
+    days: int = 1
+    budget: int | None = 5000
+    party_size: int = 1
+    transport: str = "train"          # train / car / walk
+    purpose: str | None = None        # e.g. "絶景"
+    food: str | None = None           # e.g. "魚"
+    travel_type: str | None = None    # e.g. "couple"
+    max_spots: int = 3
+
+
+class PlanItemOut(BaseModel):
+    sequence: int
+    kind: str
+    label: str
+    start_time: str | None = None
+    end_time: str | None = None
+    estimated_cost: int = 0
+    travel_time: int = 0
+    spot_id: uuid.UUID | None = None
+    restaurant_id: uuid.UUID | None = None
+    source_url: str | None = None
+
+
+class PlanOut(BaseModel):
+    id: uuid.UUID
+    origin: str
+    days: int
+    budget: int | None = None
+    party_size: int
+    transport: str
+    summary: str | None = None
+    total_cost: int | None = None
+    within_budget: bool | None = None
+    items: list[PlanItemOut] = []
+
+
 class RankingItem(BaseModel):
     id: uuid.UUID
     name: str
