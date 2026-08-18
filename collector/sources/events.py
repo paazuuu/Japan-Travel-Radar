@@ -9,6 +9,7 @@ class EventsOpenDataSource(SourceAdapter):
     name = "Official Event Pages (fixture)"
     source_type = "events"
     tier = 1
+    prunes = True
     source_url = None
     license_note = "Official event listings sample."
 

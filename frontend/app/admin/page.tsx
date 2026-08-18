@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 export const dynamic = "force-dynamic";
 
 interface Source { id: string; source_type: string; source_name: string; last_collected_at: string | null; }
-interface Run { source_key: string; status: string; fetched: number; inserted: number; skipped: number; error_count: number; started_at: string; }
+interface Run { source_key: string; status: string; fetched: number; inserted: number; updated: number; skipped: number; pruned: number; error_count: number; started_at: string; }
 interface Err { source_key: string; error_type: string; message: string; created_at: string; }
 interface Stats { spots: number; published_spots: number; restaurants: number; sources: number; analyses: number; trend_scores: number; }
 
@@ -40,12 +40,13 @@ export default async function AdminPage() {
 
       <h2>収集ジョブ</h2>
       <table className="admin">
-        <thead><tr><th>source</th><th>状態</th><th>取得</th><th>登録</th><th>スキップ</th><th>エラー</th><th>開始</th></tr></thead>
+        <thead><tr><th>source</th><th>状態</th><th>取得</th><th>登録</th><th>更新</th><th>スキップ</th><th>削除</th><th>エラー</th><th>開始</th></tr></thead>
         <tbody>
           {(runs ?? []).map((r, i) => (
             <tr key={i}>
               <td>{r.source_key}</td><td>{r.status}</td><td>{r.fetched}</td><td>{r.inserted}</td>
-              <td>{r.skipped}</td><td>{r.error_count}</td><td className="muted">{r.started_at?.slice(0, 19)}</td>
+              <td>{r.updated}</td><td>{r.skipped}</td><td>{r.pruned}</td><td>{r.error_count}</td>
+              <td className="muted">{r.started_at?.slice(0, 19)}</td>
             </tr>
           ))}
         </tbody>

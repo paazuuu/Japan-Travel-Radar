@@ -8,7 +8,7 @@ set of already-known keys pulled from the database.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from records import NormalizedSpot
 
@@ -19,6 +19,12 @@ class KnownKeys:
     urls: set[str]
     # list of (name_normalized, lat, lng) for spatial-name matching
     name_points: list[tuple[str, float, float]]
+    # existing (source_key, external_id) identities, joined by \x01
+    ext_ids: set[str] = field(default_factory=set)
+
+
+def ext_key(source_key: str, external_id: str | None) -> str | None:
+    return f"{source_key}\x01{external_id}" if external_id else None
 
 
 def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:

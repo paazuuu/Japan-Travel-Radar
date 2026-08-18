@@ -24,6 +24,9 @@ class SourceAdapter(ABC):
     #: reference URL / license
     source_url: str | None = None
     license_note: str | None = None
+    #: full-snapshot source? if True, items absent from a run are soft-hidden
+    #: (deletion detection). Incremental feeds (RSS/YouTube) must stay False.
+    prunes: bool = False
 
     @abstractmethod
     def fetch(self) -> list[RawRecord]:
@@ -44,6 +47,8 @@ def rows_to_records(source_key: str, rows: list[dict],
                     license_note: str | None = None) -> list[RawRecord]:
     records: list[RawRecord] = []
     for row in rows:
+        if not row.get("name"):
+            continue  # external data can be messy; a name is required downstream
         records.append(
             RawRecord(
                 source_key=source_key,

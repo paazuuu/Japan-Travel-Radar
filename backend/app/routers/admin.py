@@ -33,8 +33,8 @@ def list_sources(db: Session = Depends(get_db)) -> list[dict]:
 @router.get("/collector-runs")
 def list_collector_runs(limit: int = 50, db: Session = Depends(get_db)) -> list[dict]:
     return _rows(db, """
-        SELECT id, source_key, status, fetched, inserted, skipped, error_count,
-               started_at, finished_at
+        SELECT id, source_key, status, fetched, inserted, updated, skipped, pruned,
+               error_count, started_at, finished_at
         FROM collector_runs ORDER BY started_at DESC LIMIT :limit
     """, {"limit": limit})
 
@@ -82,7 +82,10 @@ def override_spot(spot_id: uuid.UUID, payload: dict = Body(...), db: Session = D
         raise HTTPException(status_code=400, detail=f"no updatable fields; allowed={sorted(allowed)}")
     set_clause = ", ".join(f"{k} = :{k}" for k in fields)
     params = {**fields, "id": str(spot_id)}
-    res = db.execute(text(f"UPDATE spots SET {set_clause}, updated_at = now() WHERE id = :id RETURNING id"), params)
+    # locked = true so the collector's update job won't overwrite the human edit.
+    res = db.execute(text(
+        f"UPDATE spots SET {set_clause}, locked = true, updated_at = now() WHERE id = :id RETURNING id"
+    ), params)
     if res.first() is None:
         db.rollback()
         raise HTTPException(status_code=404, detail="spot not found")

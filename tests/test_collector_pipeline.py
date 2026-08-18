@@ -10,7 +10,7 @@ import sys
 COLLECTOR = os.path.join(os.path.dirname(__file__), "..", "collector")
 sys.path.insert(0, COLLECTOR)
 
-from deduplicator import KnownKeys, is_duplicate, register  # noqa: E402
+from deduplicator import KnownKeys, ext_key, is_duplicate, register  # noqa: E402
 from normalizer import normalize, normalize_name  # noqa: E402
 from records import RawRecord  # noqa: E402
 from sources import build_sources  # noqa: E402
@@ -63,6 +63,17 @@ def test_validate_statuses():
     assert not ok and status == "invalid"
     ok, status, _ = validate(normalize(_raw(lat=999, lng=0), tier=1))
     assert not ok
+
+
+def test_ext_key_and_prune_flags():
+    assert ext_key("osm", "node/1") == "osm\x01node/1"
+    assert ext_key("osm", None) is None
+    by_key = {s.key: s for s in build_sources()}
+    # full-snapshot fixture sources prune; incremental feeds must not
+    assert by_key["tourism_opendata"].prunes is True
+    assert by_key["government_opendata"].prunes is True
+    assert by_key["rss"].prunes is False
+    assert by_key["youtube"].prunes is False
 
 
 def test_five_sources_and_offline_fixtures_load():

@@ -9,6 +9,7 @@ class TourismOpenDataSource(SourceAdapter):
     name = "Kansai Tourism Association Open Data (fixture)"
     source_type = "opendata"
     tier = 1
+    prunes = True  # full snapshot -> deletion detection is safe
     source_url = "https://www.kansai.gr.jp/"
     license_note = "Open data sample; verify license before public redistribution."
 

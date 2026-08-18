@@ -27,7 +27,8 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
     )
     run_id = dbmod.start_run(conn, source_id, source.key)
 
-    fetched = inserted = skipped = errors = 0
+    fetched = inserted = updated = skipped = errors = pruned = 0
+    seen_ext: set[str] = set()
     try:
         records = source.fetch()
     except Exception as exc:  # source-level failure
@@ -44,17 +45,35 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
         fetched += 1
         try:
             spot = normalize(record, source.tier)
-            if dedup.is_duplicate(spot, known):
-                skipped += 1
-                continue
+            if spot.external_id:
+                seen_ext.add(spot.external_id)
+            key = dedup.ext_key(spot.source_key, spot.external_id)
+
             ok, status, verr = validate(spot)
             if not ok:
                 dbmod.log_error(conn, run_id, source.key, "validation", verr or "invalid")
                 errors += 1
                 continue
+
+            if key and key in known.ext_ids:
+                # Same source item seen before -> UPDATE (refresh) instead of skip.
+                if spot.content_hash in known.hashes:
+                    skipped += 1  # unchanged since last collection
+                else:
+                    res = dbmod.update_spot(conn, spot, source_id=source_id, pref_map=pref_map)
+                    updated += 1 if res == "updated" else 0
+                    skipped += 1 if res == "locked" else 0
+                    known.hashes.add(spot.content_hash)
+                continue
+
+            if dedup.is_duplicate(spot, known):
+                skipped += 1
+                continue
             created = dbmod.insert_spot(conn, spot, source_id=source_id, status=status, pref_map=pref_map)
             if created:
                 dedup.register(spot, known)
+                if key:
+                    known.ext_ids.add(key)
                 inserted += 1
             else:
                 skipped += 1
@@ -63,11 +82,19 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
             dbmod.log_error(conn, run_id, source.key, "db", str(exc))
             errors += 1
 
-    status = "success" if errors == 0 else "success"  # partial errors still count as a completed run
-    dbmod.finish_run(conn, run_id, status=status, fetched=fetched, inserted=inserted,
-                     skipped=skipped, error_count=errors)
-    return {"source": source.key, "status": status, "fetched": fetched,
-            "inserted": inserted, "skipped": skipped, "errors": errors}
+    # Deletion detection for full-snapshot sources (12): hide items no longer present.
+    if getattr(source, "prunes", False) and fetched > 0:
+        try:
+            pruned = dbmod.prune_missing(conn, source.key, seen_ext)
+        except Exception as exc:
+            conn.rollback()
+            dbmod.log_error(conn, run_id, source.key, "db", f"prune: {exc}")
+            errors += 1
+
+    dbmod.finish_run(conn, run_id, status="success", fetched=fetched, inserted=inserted,
+                     skipped=skipped, error_count=errors, updated=updated, pruned=pruned)
+    return {"source": source.key, "status": "success", "fetched": fetched, "inserted": inserted,
+            "updated": updated, "skipped": skipped, "pruned": pruned, "errors": errors}
 
 
 def main() -> int:
@@ -81,7 +108,10 @@ def main() -> int:
             results.append(res)
             print(f"[collector] {res}", flush=True)
         total_inserted = sum(r.get("inserted", 0) for r in results)
-        print(f"[collector] done. total inserted={total_inserted}", flush=True)
+        total_updated = sum(r.get("updated", 0) for r in results)
+        total_pruned = sum(r.get("pruned", 0) for r in results)
+        print(f"[collector] done. inserted={total_inserted} updated={total_updated} "
+              f"pruned={total_pruned}", flush=True)
         return 0
     finally:
         conn.close()
