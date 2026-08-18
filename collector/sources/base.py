@@ -44,6 +44,8 @@ def rows_to_records(source_key: str, rows: list[dict],
                     license_note: str | None = None) -> list[RawRecord]:
     records: list[RawRecord] = []
     for row in rows:
+        if not row.get("name"):
+            continue  # external data can be messy; a name is required downstream
         records.append(
             RawRecord(
                 source_key=source_key,

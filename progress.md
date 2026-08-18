@@ -49,6 +49,17 @@
 - **検証保留:** docker daemon 不在のため DB実クエリ/collector・worker実行/フロント実起動は未実施。
   ローカルで scripts/{seed,collect,analyze,rank}.sh + docker compose で確認可能。
 
+### 追加: 実データソース（MVP2拡張, 2026-08-17）
+- collector に実ソース3種を追加: **OpenStreetMap Overpass(ODbL)**（関西6府県を area 指定・
+  座標付きPOI）、**Wikidata SPARQL(CC0)**（観光地×府県×座標）、**設定可能 open-data JSON URL**
+  （`OPENDATA_JSON_URLS` で自治体データを差し込み）
+- パーサ(parse_elements / parse_bindings)は実API同形サンプルで単体テスト（+3, 計32 passed）
+- ネットワーク失敗は collection_errors に記録し degrade、fixture で日次ジョブは成功維持
+- COLLECTOR_DISABLE_NETWORK / OVERPASS_URL / WIKIDATA_URL 等を .env.example に追加、
+  docs/DATA_SOURCES.md にライセンス・帰属・設定を記載
+- 注意: このサンドボックスは egress で overpass/wikidata が 403（実フェッチ不可）。
+  実データ投入は通常の docker 実行環境で `./scripts/collect.sh`
+
 ### Phase 8-9: MVP7 中国語コンテンツ / MVP8 PWA（2026-08-17）
 - **MVP7:** content generator(純粋関数, term map翻訳)で小红书/微信/60秒動画台本を生成、
   content_drafts、下書きのみ・自動公開なし・人間レビュー、API /content/*、/content UI。

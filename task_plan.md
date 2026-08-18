@@ -37,8 +37,10 @@ MVP0→MVP8 まで全て完了・push済み。仕様書セットの計画（Stag
 
 ### Phase 3: MVP2 — Collector
 - [x] Collector / Normalizer / Deduplicator / Validator / Runner / Logs
-- [x] sources 5種(tourism/government/events opendata + rss + youtube)、fixtures
+- [x] sources(tourism/government/events fixtures + rss + youtube)、fixtures
 - [x] raw_items / collector_runs / collection_errors、spots に provenance列
+- [x] 実データソース追加: OpenStreetMap Overpass(ODbL) / Wikidata SPARQL(CC0) /
+      設定可能な open-data JSON URL。パーサは単体テスト、ネットworkは graceful degrade
 - **Status:** complete
 
 ### Phase 4: MVP3 — AI Analysis
