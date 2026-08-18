@@ -63,8 +63,10 @@ Phase 7 (MVP6: Planner) — complete
 - **Status:** complete
 
 ### Phase 8: MVP7 — Chinese Content
-- [ ] Simplified Chinese / Xiaohongshu / WeChat / Video script / Human review
-- **Status:** pending
+- [x] Simplified Chinese / Xiaohongshu / WeChat / 60秒Video script / Human review
+- [x] content_drafts、fact抽出→翻訳(term map)→整形、下書きのみ・自動公開なし
+- [x] API /content/{xiaohongshu,wechat,video-script,chinese}、/content UI
+- **Status:** complete
 
 ### Phase 9: MVP8 — PWA
 - [ ] Mobile UI / Installable / Favorites / Saved plans / Share

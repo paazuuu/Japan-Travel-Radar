@@ -53,6 +53,7 @@ export default async function SpotDetail({
         <div className="tagrow">
           {spot.official_url && <a className="badge official" href={spot.official_url} target="_blank" rel="noreferrer">公式サイト</a>}
           {spot.source_url && <a className="badge" href={spot.source_url} target="_blank" rel="noreferrer">出典</a>}
+          <a className="badge ai" href={`/content?spot=${spot.id}`}>中国語コンテンツ生成</a>
         </div>
       </div>
 

@@ -34,6 +34,10 @@ def test_openapi_lists_mvp1_routes():
         "/api/v1/admin/spots/{spot_id}/score",
         "/api/v1/planner/generate",
         "/api/v1/planner/{plan_id}",
+        "/api/v1/content/xiaohongshu",
+        "/api/v1/content/wechat",
+        "/api/v1/content/video-script",
+        "/api/v1/content/chinese",
     }
     missing = expected - set(paths)
     assert not missing, f"missing routes: {missing}"
