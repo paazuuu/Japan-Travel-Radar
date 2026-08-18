@@ -183,12 +183,37 @@ def _config_path() -> str:
     return os.environ.get("OPENDATA_CONFIG", default)
 
 
+def _preset_url_specs() -> list[DatasetSpec]:
+    """Preset-only datasets: paste URLs, no per-field mapping needed.
+
+    OPENDATA_PRESET_URLS = comma-separated CSV URLs that follow the
+    「推奨データセット（観光施設一覧）」standard column names. Optional:
+    OPENDATA_PRESET_FORMAT (csv|json, default csv),
+    OPENDATA_PRESET_ENCODING (default utf-8-sig).
+    """
+    urls = [u.strip() for u in os.environ.get("OPENDATA_PRESET_URLS", "").split(",") if u.strip()]
+    fmt = os.environ.get("OPENDATA_PRESET_FORMAT", "csv")
+    enc = os.environ.get("OPENDATA_PRESET_ENCODING", "utf-8-sig")
+    specs: list[DatasetSpec] = []
+    for i, url in enumerate(urls):
+        specs.append(build_spec({
+            "key": f"preset_{i}",
+            "name": f"推奨データセット URL #{i + 1}",
+            "url": url, "format": fmt, "encoding": enc,
+            "mapping_preset": "suishou_kanko",
+            "license_note": "配布元の利用規約に従う（要確認）",
+            "defaults": {"category": "sightseeing"},
+        }))
+    return specs
+
+
 def load_specs() -> list[DatasetSpec]:
+    specs: list[DatasetSpec] = list(_preset_url_specs())
     path = _config_path()
-    if not os.path.exists(path):
-        return []
-    with open(path, encoding="utf-8") as fh:
-        return [build_spec(d) for d in json.load(fh)]
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as fh:
+            specs.extend(build_spec(d) for d in json.load(fh))
+    return specs
 
 
 class ConfiguredDatasetsSource(SourceAdapter):

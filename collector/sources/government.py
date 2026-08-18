@@ -9,6 +9,7 @@ class GovernmentOpenDataSource(SourceAdapter):
     name = "Local Government Open Data (fixture)"
     source_type = "opendata"
     tier = 1
+    prunes = True
     source_url = "https://www.data.go.jp/"
     license_note = "Public sector open data sample."
 

@@ -45,6 +45,49 @@ RSS_FEEDS=https://example.jp/feed.xml
 YOUTUBE_API_KEY=...
 ```
 
+## プリセットだけで動かす（URLを貼るだけ）
+
+「推奨データセット（観光施設一覧）」標準列に準拠したCSVなら、**マッピング記述は不要**。
+`.env` にURLを並べるだけで取り込めます。
+
+```env
+OPENDATA_PRESET_URLS=https://cityA.example.jp/kanko.csv,https://cityB.example.jp/spots.csv
+OPENDATA_PRESET_ENCODING=utf-8-sig   # Shift_JIS の配布物は cp932
+```
+
+`都道府県名` 列から府県コードを自動判定し、名称/緯度/経度/説明/URL/住所を標準列名で取り込みます。
+標準に準拠しない列名のデータは、後述の設定ファイルで `mapping` を指定してください。
+
+## 更新機能（定期再収集・差分更新・削除検出）
+
+collector コンテナは常駐し、`COLLECT_INTERVAL_SECONDS`（既定=日次）ごとに全ソースを再収集します。
+1回だけ実行するには `RUN_MODE=once`（`./scripts/collect.sh`）。
+
+再収集時の挙動:
+
+| 事象 | 挙動 |
+|---|---|
+| 同一ソースの同一項目で**内容変化なし** | スキップ（`content_hash` 一致） |
+| 同一ソースの同一項目で**内容が変化** | `(source_key, external_id)` で該当行を **UPDATE**（更新） |
+| ソースから**消えた項目**（全件スナップショット系のみ） | `status='hidden'` に **ソフト削除**（12: 削除検出） |
+| **人手で編集した項目**（Admin の override） | `locked=true` となり収集の更新対象外（人手編集を保護） |
+
+- 更新/削除の件数は `collector_runs.updated` / `pruned` と Admin 画面「収集ジョブ」で確認できます。
+- 削除検出は全件を返すソース（fixtures 等）のみ有効。部分取得で誤削除しないよう、
+  ネットワーク系（Overpass/Wikidata/dataset URL/RSS/YouTube）は既定で prune しません。
+
+### SNS・他サイトからの取り込み（更新で仕入れる）
+
+更新ジョブは以下の**合法な**ソースからも情報を取り込みます（規約遵守が前提）:
+
+- **他サイト（ニュース/観光協会など）**: `RSS_FEEDS` に RSS を設定（見出し+リンクのみ保存）
+- **SNS**: 各プラットフォームの**公式APIのみ**（例: YouTube は `YOUTUBE_API_KEY`）。
+  直接スクレイピングはしない（12: 「取得できる技術」と「利用してよいデータ」は別物）
+- **自治体オープンデータ**: `OPENDATA_PRESET_URLS` / 設定ファイル
+
+将来 X(Twitter)/Instagram 等を足す場合も、公式API・利用規約・データ利用条件を満たす方法だけを
+アダプタとして追加してください（`collector/sources/*.py` に1ファイル追加→ `build_sources` に登録）。
+
 ## 自治体オープンデータの追加（列名マッピング）
 
 実データは CSV（Shift_JIS/cp932 も可）や独自の日本語列名で提供されることが多い。

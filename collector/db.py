@@ -56,6 +56,7 @@ def load_known_keys(conn: psycopg.Connection) -> KnownKeys:
     hashes: set[str] = set()
     urls: set[str] = set()
     name_points: list[tuple[str, float, float]] = []
+    ext_ids: set[str] = set()
     with conn.cursor() as cur:
         cur.execute("SELECT content_hash FROM raw_items")
         hashes.update(h for (h,) in cur.fetchall() if h)
@@ -63,18 +64,20 @@ def load_known_keys(conn: psycopg.Connection) -> KnownKeys:
             """
             SELECT name, official_url,
                    ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng,
-                   content_hash
+                   content_hash, source_key, external_id
             FROM spots
             """
         )
-        for name, official_url, lat, lng, chash in cur.fetchall():
+        for name, official_url, lat, lng, chash, skey, ext in cur.fetchall():
             if chash:
                 hashes.add(chash)
             if official_url:
                 urls.add(official_url)
             if lat is not None and lng is not None:
                 name_points.append((normalize_name(name), float(lat), float(lng)))
-    return KnownKeys(hashes=hashes, urls=urls, name_points=name_points)
+            if skey and ext:
+                ext_ids.add(f"{skey}\x01{ext}")
+    return KnownKeys(hashes=hashes, urls=urls, name_points=name_points, ext_ids=ext_ids)
 
 
 def start_run(conn: psycopg.Connection, source_id: str | None, source_key: str) -> str:
@@ -89,16 +92,18 @@ def start_run(conn: psycopg.Connection, source_id: str | None, source_key: str) 
 
 
 def finish_run(conn: psycopg.Connection, run_id: str, *, status: str,
-               fetched: int, inserted: int, skipped: int, error_count: int) -> None:
+               fetched: int, inserted: int, skipped: int, error_count: int,
+               updated: int = 0, pruned: int = 0) -> None:
     with conn.cursor() as cur:
         cur.execute(
             """
             UPDATE collector_runs
                SET finished_at = now(), status = %s, fetched = %s,
-                   inserted = %s, skipped = %s, error_count = %s
+                   inserted = %s, skipped = %s, error_count = %s,
+                   updated = %s, pruned = %s
              WHERE id = %s
             """,
-            (status, fetched, inserted, skipped, error_count, run_id),
+            (status, fetched, inserted, skipped, error_count, updated, pruned, run_id),
         )
     conn.commit()
 
@@ -116,59 +121,118 @@ def log_error(conn: psycopg.Connection, run_id: str | None, source_key: str,
     conn.commit()
 
 
+def _insert_raw_item(cur, spot: NormalizedSpot, source_id: str) -> None:
+    cur.execute(
+        """
+        INSERT INTO raw_items (source_id, source_key, external_id, url, title,
+                               content_hash, collected_at, processed)
+        VALUES (%s, %s, %s, %s, %s, %s, now(), false)
+        ON CONFLICT (content_hash) DO NOTHING
+        """,
+        (source_id, spot.source_key, spot.external_id, spot.url, spot.name, spot.content_hash),
+    )
+
+
 def insert_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: str,
                 status: str, pref_map: dict[str, str]) -> bool:
-    """Insert a spot + its raw_item. Returns True if a new spot row was created."""
+    """Insert a NEW spot + its raw_item. Returns True if a row was created."""
     pref_id = pref_map.get(spot.prefecture_code) if spot.prefecture_code else None
     collected = datetime.now(timezone.utc)
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO raw_items (source_id, source_key, external_id, url, title,
-                                   content_hash, collected_at, processed)
-            VALUES (%s, %s, %s, %s, %s, %s, now(), false)
-            ON CONFLICT (content_hash) DO NOTHING
-            """,
-            (source_id, spot.source_key, spot.external_id, spot.url, spot.name, spot.content_hash),
-        )
-        if spot.lat is not None and spot.lng is not None:
-            geo = "ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography"
-        else:
-            geo = "NULL"
+        _insert_raw_item(cur, spot, source_id)
+        geo = ("ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography"
+               if spot.lat is not None and spot.lng is not None else "NULL")
         cur.execute(
             f"""
             INSERT INTO spots (name, description, prefecture_id, location, category,
                                subcategory, official_url, source_id, source_url, status,
-                               content_hash, collected_at, published_at, license_note,
-                               data_class, source_key, external_id)
+                               content_hash, collected_at, last_collected_at, published_at,
+                               license_note, data_class, source_key, external_id)
             VALUES (%(name)s, %(description)s, %(pref_id)s, {geo}, %(category)s,
                     %(subcategory)s, %(official_url)s, %(source_id)s, %(source_url)s,
-                    %(status)s, %(content_hash)s, %(collected)s, %(published)s,
+                    %(status)s, %(content_hash)s, %(collected)s, %(collected)s, %(published)s,
                     %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
             ON CONFLICT (content_hash) DO NOTHING
             RETURNING id
             """,
-            {
-                "name": spot.name,
-                "description": spot.description,
-                "pref_id": pref_id,
-                "lat": spot.lat,
-                "lng": spot.lng,
-                "category": spot.category,
-                "subcategory": spot.subcategory,
-                "official_url": spot.official_url,
-                "source_id": source_id,
-                "source_url": spot.url,
-                "status": status,
-                "content_hash": spot.content_hash,
-                "collected": collected,
-                "published": spot.published_at,
-                "license": spot.license_note,
-                "data_class": spot.data_class,
-                "source_key": spot.source_key,
-                "external_id": spot.external_id,
-            },
+            _spot_params(spot, pref_id, source_id, status, collected),
         )
         created = cur.fetchone() is not None
     conn.commit()
     return created
+
+
+def update_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: str,
+                pref_map: dict[str, str]) -> str:
+    """Refresh an existing spot identified by (source_key, external_id).
+
+    Returns 'updated', or 'locked' when the row was locked by a human override
+    (05/12: human edits must survive re-collection). Also records the raw_item.
+    """
+    pref_id = pref_map.get(spot.prefecture_code) if spot.prefecture_code else None
+    collected = datetime.now(timezone.utc)
+    with conn.cursor() as cur:
+        _insert_raw_item(cur, spot, source_id)
+        geo = ("ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography"
+               if spot.lat is not None and spot.lng is not None else "location")
+        cur.execute(
+            f"""
+            UPDATE spots SET
+                name = %(name)s,
+                description = COALESCE(%(description)s, description),
+                prefecture_id = COALESCE(%(pref_id)s, prefecture_id),
+                location = {geo},
+                category = COALESCE(%(category)s, category),
+                subcategory = COALESCE(%(subcategory)s, subcategory),
+                official_url = COALESCE(%(official_url)s, official_url),
+                source_url = %(source_url)s,
+                content_hash = %(content_hash)s,
+                license_note = %(license)s,
+                collected_at = %(collected)s,
+                last_collected_at = %(collected)s,
+                updated_at = now()
+            WHERE source_key = %(source_key)s AND external_id = %(external_id)s
+              AND locked = false
+            RETURNING id
+            """,
+            _spot_params(spot, pref_id, source_id, None, collected),
+        )
+        updated = cur.fetchone() is not None
+    conn.commit()
+    return "updated" if updated else "locked"
+
+
+def _spot_params(spot: NormalizedSpot, pref_id, source_id, status, collected) -> dict:
+    return {
+        "name": spot.name, "description": spot.description, "pref_id": pref_id,
+        "lat": spot.lat, "lng": spot.lng, "category": spot.category,
+        "subcategory": spot.subcategory, "official_url": spot.official_url,
+        "source_id": source_id, "source_url": spot.url, "status": status,
+        "content_hash": spot.content_hash, "collected": collected,
+        "published": spot.published_at, "license": spot.license_note,
+        "data_class": spot.data_class, "source_key": spot.source_key,
+        "external_id": spot.external_id,
+    }
+
+
+def prune_missing(conn: psycopg.Connection, source_key: str, seen_external_ids: set[str]) -> int:
+    """Hide spots from a full-snapshot source that were not seen this run.
+
+    Deletion detection (12): source removed the item -> soft-hide it. Never
+    touches locked (human-managed) rows. Returns the number hidden.
+    """
+    if not seen_external_ids:
+        return 0
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE spots SET status = 'hidden', updated_at = now()
+            WHERE source_key = %s AND external_id IS NOT NULL
+              AND NOT (external_id = ANY(%s))
+              AND locked = false AND status <> 'hidden'
+            """,
+            (source_key, list(seen_external_ids)),
+        )
+        n = cur.rowcount
+    conn.commit()
+    return n

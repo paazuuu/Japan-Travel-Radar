@@ -24,6 +24,9 @@ class SourceAdapter(ABC):
     #: reference URL / license
     source_url: str | None = None
     license_note: str | None = None
+    #: full-snapshot source? if True, items absent from a run are soft-hidden
+    #: (deletion detection). Incremental feeds (RSS/YouTube) must stay False.
+    prunes: bool = False
 
     @abstractmethod
     def fetch(self) -> list[RawRecord]:

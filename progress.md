@@ -64,6 +64,13 @@
     住所→説明フォールバック、デフォルト値、`mapping_preset: suishou_kanko`(推奨データセット標準)
   - config/opendata_datasets.json（動作するローカルサンプル + 実データ雛形 enabled:false）
   - map_rows とローカルサンプル取得を単体テスト（+4, 計36 passed）
+- 追加: プリセットのみ運用 + 更新機能
+  - OPENDATA_PRESET_URLS: 推奨データセットCSVのURLを貼るだけで取り込み（マッピング不要）
+  - 更新機能: 定期再収集(COLLECT_INTERVAL_SECONDS)、(source_key,external_id)で差分UPDATE、
+    content_hash一致はスキップ、全件スナップショット系(fixtures)は消えた項目を status='hidden'
+    にソフト削除、Admin override は locked=true で人手編集を保護
+  - collector_runs に updated/pruned 列、Admin画面に表示、SNSは公式APIのみ/他サイトはRSS
+  - migration 0008、ext_key/preset/prune を単体テスト（計38 passed）
 
 ### Phase 8-9: MVP7 中国語コンテンツ / MVP8 PWA（2026-08-17）
 - **MVP7:** content generator(純粋関数, term map翻訳)で小红书/微信/60秒動画台本を生成、

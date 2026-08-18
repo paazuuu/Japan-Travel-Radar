@@ -64,3 +64,16 @@ def test_disabled_examples_are_not_fetched():
     src = ConfiguredDatasetsSource()
     keys = {r.source_key for r in src.fetch()}
     assert keys == {"sample_suishou_kanko"}
+
+
+def test_preset_urls_synthesize_specs(monkeypatch):
+    # Preset-only mode: paste URLs, no per-field mapping needed.
+    from sources import datasets as ds
+    monkeypatch.setenv("OPENDATA_PRESET_URLS", "https://a.example/x.csv, https://b.example/y.csv")
+    specs = ds.load_specs()
+    preset = [s for s in specs if s.key.startswith("preset_")]
+    assert len(preset) == 2
+    s0 = preset[0]
+    assert s0.url == "https://a.example/x.csv" and s0.enabled
+    # suishou preset columns are applied automatically
+    assert "名称" in s0.mapping["name"] and "緯度" in s0.mapping["lat"]
