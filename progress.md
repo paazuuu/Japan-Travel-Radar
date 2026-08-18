@@ -49,6 +49,15 @@
 - **検証保留:** docker daemon 不在のため DB実クエリ/collector・worker実行/フロント実起動は未実施。
   ローカルで scripts/{seed,collect,analyze,rank}.sh + docker compose で確認可能。
 
+### Phase 8-9: MVP7 中国語コンテンツ / MVP8 PWA（2026-08-17）
+- **MVP7:** content generator(純粋関数, term map翻訳)で小红书/微信/60秒動画台本を生成、
+  content_drafts、下書きのみ・自動公開なし・人間レビュー、API /content/*、/content UI。
+  tests content_generator 5（backend 計29 passed）
+- **MVP8:** manifest.webmanifest + sw.js(オフラインcache)、SVGアイコン、モバイルbottom nav、
+  お気に入り/最近見た/保存プラン(localStorage)、共有(Web Share API)、/saved ページ。
+  frontend build 成功(9 routes)
+- **状態:** MVP0→MVP8 全完了。実行時検証(docker)は未実施(この環境にdaemon無し)
+
 ### Phase 7: MVP6 — AI旅行プランナー（2026-08-17）
 - **Status:** complete
 - planner engine(純粋関数): 制約解析(purpose→tags)/nearest-neighborルート/移動時間・

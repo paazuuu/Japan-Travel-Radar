@@ -73,3 +73,31 @@ table.admin { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 table.admin th, table.admin td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); }
 table.admin th { color: var(--muted); font-weight: 600; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; }
+
+/* ---- PWA bottom navigation (mobile) ---- */
+.bottom-nav { display: none; }
+@media (max-width: 720px) {
+  body { padding-bottom: 64px; }
+  .bottom-nav {
+    display: flex;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: rgba(11, 17, 32, 0.96);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    padding: 0.3rem 0 calc(0.3rem + env(safe-area-inset-bottom));
+  }
+  .bottom-nav a {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--muted); font-size: 0.65rem; padding: 0.25rem 0;
+  }
+  .bottom-nav a:hover, .bottom-nav a:active { color: var(--text); }
+  .bottom-nav .bn-icon { font-size: 1.15rem; }
+  /* keep the top nav usable but let the bottom bar be primary on phones */
+  .nav-inner { font-size: 0.85rem; }
+}
+
+button.fav {
+  background: var(--panel); color: var(--text); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.85rem;
+}
+button.fav.on { border-color: var(--hot); color: var(--hot); }

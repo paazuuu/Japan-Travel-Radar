@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { browserBase, yen } from "../../lib/api";
+import { savePlan } from "../../lib/store";
 
 interface PlanItem {
   sequence: number;
@@ -33,6 +34,16 @@ export default function PlannerPage() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const planId = new URLSearchParams(window.location.search).get("plan");
+    if (!planId) return;
+    fetch(`${browserBase()}/api/v1/planner/${planId}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => p && setPlan(p))
+      .catch(() => {});
+  }, []);
 
   async function generate() {
     setLoading(true); setError(null); setPlan(null);
@@ -101,9 +112,21 @@ export default function PlannerPage() {
         <section style={{ marginTop: "1.25rem" }}>
           <h2>プラン</h2>
           <p>{plan.summary}</p>
-          <span className={`badge ${plan.within_budget ? "official" : "hot"}`}>
-            合計 {yen(plan.total_cost)}（{plan.within_budget ? "予算内" : "予算超過"}）
-          </span>
+          <div className="tagrow">
+            <span className={`badge ${plan.within_budget ? "official" : "hot"}`}>
+              合計 {yen(plan.total_cost)}（{plan.within_budget ? "予算内" : "予算超過"}）
+            </span>
+            <button
+              className="fav"
+              onClick={() => {
+                savePlan({ id: plan.id, origin: plan.origin, summary: plan.summary ?? undefined, at: Date.now() });
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+              }}
+            >
+              {saved ? "★ 保存しました" : "☆ このプランを保存"}
+            </button>
+          </div>
 
           <div style={{ marginTop: "1rem" }}>
             {plan.items.map((it) => (

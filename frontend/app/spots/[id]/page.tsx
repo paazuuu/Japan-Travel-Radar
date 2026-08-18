@@ -1,5 +1,6 @@
 import { api, yen } from "../../../lib/api";
 import { Tags } from "../../../components/SpotCard";
+import { SpotActions } from "../../../components/SpotActions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,8 @@ export default async function SpotDetail({
       {spot.description && spot.description !== spot.ai_summary && <p className="muted">{spot.description}</p>}
 
       <Tags tags={spot.tags} />
+
+      <SpotActions id={spot.id} name={spot.name} />
 
       <div className="card" style={{ marginTop: "1rem" }}>
         <div className="meta">滞在目安: {spot.recommended_stay_minutes ?? "—"} 分</div>

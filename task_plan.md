@@ -8,11 +8,12 @@
 「最初の実用MVP」（関西100スポット + 50飲食店 + 5情報源 + AIタグ + Trend Score + Dashboard）を完成させる。
 
 ## Next Step
-MVP6 まで完了・push済み。MVP成功条件（根拠付き旅行プラン生成）を実装で満たした。
-次はユーザー指示待ち（候補: MVP7 中国語コンテンツ / MVP8 PWA）。
+MVP0→MVP8 まで全て完了・push済み。仕様書セットの計画（Stage 0-8）を実装で充足。
+残る Stage 9(一般公開: 認証/課金) と Stage 10(Native App) は将来対応。
+候補: PR作成、実機(docker)での通し検証、実データソース追加。
 
 ## Current Phase
-Phase 7 (MVP6: Planner) — complete
+全MVP(0-8) complete
 
 ## Phases
 
@@ -69,8 +70,10 @@ Phase 7 (MVP6: Planner) — complete
 - **Status:** complete
 
 ### Phase 9: MVP8 — PWA
-- [ ] Mobile UI / Installable / Favorites / Saved plans / Share
-- **Status:** pending
+- [x] manifest + service worker(オフラインcache) / インストール可能
+- [x] モバイル bottom nav / お気に入り / 最近見た / 保存プラン(localStorage) / 共有(Web Share)
+- [x] frontend build 成功(9 routes)
+- **Status:** complete
 
 ## Key Questions
 1. seed データはどこまで実データを入れるか？（MVP1では代表的な少数の実在スポットで十分）

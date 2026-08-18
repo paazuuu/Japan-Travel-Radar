@@ -17,7 +17,10 @@
 - [x] **MVP4 — Ranking (Trend Score・急上昇・季節・食・内訳)**
 - [x] **MVP5 — Map/Web UI (Dashboard/Map/Ranking/Food/Spot/Admin)**
 - [x] **MVP6 — AI旅行プランナー (制約解析→地理検索→ルート→予算→根拠付きプラン)**
-- [ ] MVP7 — 中国語コンテンツ / MVP8 — PWA（次のステップ）
+- [x] **MVP7 — 中国語コンテンツ (小红书 / 微信 / 60秒動画台本、下書き・人間レビュー)**
+- [x] **MVP8 — PWA (manifest / service worker / お気に入り・保存・共有)**
+
+**MVP0→MVP8 まで実装完了。** 残る Stage 9(認証・課金など一般公開) と Stage 10(Native App) は将来対応。
 
 > MVP成功条件（`00_README.md`）:「大阪発・日帰り・5,000円・車なし・魚・絶景」の
 > 根拠付きプラン生成を実装済み（`./scripts/plan.sh` または `/planner` 画面）。
