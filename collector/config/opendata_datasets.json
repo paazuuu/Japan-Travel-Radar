@@ -1,0 +1,47 @@
+[
+  {
+    "key": "sample_suishou_kanko",
+    "name": "サンプル: 推奨データセット形式（観光施設一覧）",
+    "enabled": true,
+    "path": "data/sample_kanko.csv",
+    "format": "csv",
+    "encoding": "utf-8-sig",
+    "license_note": "サンプル（開発用・要検証）",
+    "mapping_preset": "suishou_kanko",
+    "defaults": { "category": "sightseeing" }
+  },
+
+  {
+    "_comment": "--- 以下は実データセットの雛形。URLを確認のうえ enabled:true にする ---",
+
+    "key": "osaka_kanko",
+    "name": "大阪府 観光施設オープンデータ（例）",
+    "enabled": false,
+    "url": "https://REPLACE_WITH_VERIFIED_RESOURCE_URL/osaka_kanko.csv",
+    "format": "csv",
+    "encoding": "cp932",
+    "license_note": "CC BY 4.0 または政府標準利用規約（配布元で要確認）",
+    "mapping_preset": "suishou_kanko",
+    "defaults": { "prefecture_code": "27", "category": "sightseeing" }
+  },
+
+  {
+    "key": "kyoto_kanko",
+    "name": "京都府/京都市 観光オープンデータ（例）",
+    "enabled": false,
+    "url": "https://REPLACE_WITH_VERIFIED_RESOURCE_URL/kyoto_spots.json",
+    "format": "json",
+    "json_path": "data",
+    "license_note": "配布元の利用規約に従う",
+    "mapping": {
+      "name": ["名称", "spot_name"],
+      "lat": ["緯度", "latitude"],
+      "lng": ["経度", "longitude"],
+      "description": ["概要", "description"],
+      "official_url": ["URL", "url"],
+      "prefecture_name": ["都道府県名"],
+      "category": ["カテゴリ", "genre"]
+    },
+    "defaults": { "prefecture_code": "26", "category": "sightseeing" }
+  }
+]

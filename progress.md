@@ -59,6 +59,11 @@
   docs/DATA_SOURCES.md にライセンス・帰属・設定を記載
 - 注意: このサンドボックスは egress で overpass/wikidata が 403（実フェッチ不可）。
   実データ投入は通常の docker 実行環境で `./scripts/collect.sh`
+- 追加: 自治体オープンデータの列名マッピング（`opendata_datasets` ソース）
+  - CSV(cp932/utf-8-sig)/JSON 両対応、候補列名の先頭一致、都道府県名→JISコード(全47)、
+    住所→説明フォールバック、デフォルト値、`mapping_preset: suishou_kanko`(推奨データセット標準)
+  - config/opendata_datasets.json（動作するローカルサンプル + 実データ雛形 enabled:false）
+  - map_rows とローカルサンプル取得を単体テスト（+4, 計36 passed）
 
 ### Phase 8-9: MVP7 中国語コンテンツ / MVP8 PWA（2026-08-17）
 - **MVP7:** content generator(純粋関数, term map翻訳)で小红书/微信/60秒動画台本を生成、

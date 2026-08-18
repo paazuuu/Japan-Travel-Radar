@@ -17,6 +17,7 @@ COLLECTOR_DISABLE_NETWORK=1.
 from __future__ import annotations
 
 from sources.base import SourceAdapter
+from sources.datasets import ConfiguredDatasetsSource
 from sources.events import EventsOpenDataSource
 from sources.government import GovernmentOpenDataSource
 from sources.opendata_url import OpenDataUrlSource
@@ -33,6 +34,9 @@ def build_sources() -> list[SourceAdapter]:
         TourismOpenDataSource(),
         GovernmentOpenDataSource(),
         EventsOpenDataSource(),
+        # configured municipal datasets (CSV/JSON + column mapping); ships a
+        # working local sample and is extended via config/opendata_datasets.json
+        ConfiguredDatasetsSource(),
         # live real data — enrich the DB when network is available
         OverpassSource(),
         WikidataSource(),
