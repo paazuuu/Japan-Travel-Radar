@@ -20,7 +20,12 @@
 - [x] **MVP7 — 中国語コンテンツ (小红书 / 微信 / 60秒動画台本、下書き・人間レビュー)**
 - [x] **MVP8 — PWA (manifest / service worker / お気に入り・保存・共有)**
 
-**MVP0→MVP8 まで実装完了。** 残る Stage 9(認証・課金など一般公開) と Stage 10(Native App) は将来対応。
+**MVP0→MVP8 まで実装完了。** 残る Stage 9(アカウント・課金など一般公開) と Stage 10(Native App) は将来対応。
+
+### 追加整備
+- [x] **CI（GitHub Actions）** — PR/push で pytest（backend/collector/worker）+ frontend build + compose 検証
+- [x] **Admin 認証** — `/api/v1/admin/*` は `X-Admin-Key`（`ADMIN_API_KEY`）必須。未設定は fail-closed(503)
+- [x] **実LLM連携** — `AI_API_KEY` 設定時に Anthropic で分析/中国語翻訳/プラン要約を強化、未設定・失敗時はルールベースへ自動フォールバック（既定モデル `AI_MODEL=claude-opus-5`）
 
 > MVP成功条件（`00_README.md`）:「大阪発・日帰り・5,000円・車なし・魚・絶景」の
 > 根拠付きプラン生成を実装済み（`./scripts/plan.sh` または `/planner` 画面）。

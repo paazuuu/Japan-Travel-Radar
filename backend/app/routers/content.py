@@ -13,6 +13,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import llm
 from app.content import generator as gen
 from app.db import get_db
 
@@ -63,6 +64,12 @@ def _save_draft(db: Session, spot_id: uuid.UUID, platform: str, body: dict) -> d
 
 def _generate(db: Session, spot_id: uuid.UUID, platform: str) -> dict:
     facts = _facts(db, spot_id)
+    # When an LLM is configured, translate the Japanese summary to natural
+    # Simplified Chinese (facts only); otherwise the template term-map is used.
+    if llm.available() and facts.summary:
+        zh = llm.translate_ja_to_zh(facts.summary)
+        if zh:
+            facts.summary = zh
     body = gen.generate(platform, facts)
     return _save_draft(db, spot_id, platform, body)
 

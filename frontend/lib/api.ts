@@ -69,15 +69,21 @@ export interface Restaurant {
   distance_m?: number | null;
 }
 
-async function getJSON<T>(url: string): Promise<T | null> {
+async function getJSON<T>(url: string, headers?: Record<string, string>): Promise<T | null> {
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store", headers });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
     return null;
   }
 }
+
+// Admin key is server-side only (never exposed to the browser).
+const adminHeaders = () => {
+  const key = process.env.ADMIN_API_KEY;
+  return key ? { "X-Admin-Key": key } : undefined;
+};
 
 // ---- server-side fetchers ----
 export const api = {
@@ -90,7 +96,7 @@ export const api = {
   nearbyRestaurants: (lat: number, lng: number, extra = "") =>
     getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants/nearby?lat=${lat}&lng=${lng}${extra}`),
   restaurants: (params = "") => getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants?${params}`),
-  admin: <T>(path: string) => getJSON<T>(`${serverBase()}/api/v1/admin/${path}`),
+  admin: <T>(path: string) => getJSON<T>(`${serverBase()}/api/v1/admin/${path}`, adminHeaders()),
 };
 
 export const yen = (n?: number | null) => (n == null ? "—" : `¥${n.toLocaleString()}`);

@@ -9,7 +9,7 @@ import os
 import time
 
 import db as dbmod
-from analyzer import analyze
+from llm import analyze_best
 from ranking import run_ranking_once
 
 
@@ -19,7 +19,8 @@ def run_analysis_once() -> int:
     try:
         spots = dbmod.fetch_spots_needing_analysis(conn)
         for spot_id, name, description, category in spots:
-            result = analyze(name, description, category)
+            # LLM when AI_API_KEY is set, else deterministic rule-based fallback.
+            result = analyze_best(name, description, category)
             dbmod.upsert_analysis(conn, spot_id, result)
             analyzed += 1
         print(f"[worker] analysis done. analyzed={analyzed}", flush=True)

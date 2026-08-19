@@ -12,9 +12,11 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.auth import require_admin
 from app.db import get_db
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+# Every /admin route requires a valid X-Admin-Key header.
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 
 def _rows(db: Session, sql: str, params: dict | None = None) -> list[dict]:

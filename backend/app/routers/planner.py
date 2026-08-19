@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import llm
 from app.db import get_db
 from app.planner import engine
 from app.schemas import PlanOut, PlanRequest
@@ -131,6 +132,16 @@ def generate(req: PlanRequest, db: Session = Depends(get_db)) -> PlanOut:
         f"候補{len(ordered)}スポット、合計¥{result.total_cost}"
         f"（{'予算内' if result.within_budget else '予算超過'}）。"
     )
+    # Optional LLM narrative from the structured plan (facts only; no invention).
+    if llm.available():
+        nicer = llm.plan_summary({
+            "origin": req.origin, "transport": req.transport, "budget": req.budget,
+            "purpose": req.purpose, "food": req.food,
+            "spots": [c.name for c in ordered],
+            "total_cost": result.total_cost, "within_budget": result.within_budget,
+        })
+        if nicer:
+            summary = nicer
 
     plan_id = _persist(db, req, origin, result, summary)
     return _to_out(db, plan_id)
