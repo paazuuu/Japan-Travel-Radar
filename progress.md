@@ -1,5 +1,18 @@
 # Progress Log
 
+## Session: 追加整備（CI / Admin認証 / 実LLM連携）
+- **CI**: .github/workflows/ci.yml — PR/push で pytest(backend/collector/worker) +
+  frontend build + docker compose config を実行（GitHub上で回る＝実質の動作確認）
+- **Admin認証**: app/auth.py の require_admin を /admin ルータ全体に適用。X-Admin-Key
+  (ADMIN_API_KEY) 必須、未設定は fail-closed(503)。override は locked に加えキー必須。
+  frontend は SSR で ADMIN_API_KEY をヘッダ送信（ブラウザ非公開）
+- **実LLM連携**: worker/llm.py・backend/app/llm.py。AI_API_KEY 設定時のみ Anthropic
+  (既定 claude-opus-5, AI_MODEL で変更可)。分析(tags/summary)・中国語翻訳・プラン要約を強化。
+  未設定/SDK無し/APIエラー時はルールベース/テンプレへ自動フォールバック（創作禁止の制約付き）
+- テスト +7（admin auth 4 / llm fallback 4 のうち…計46 passed）。anthropic 未インストールでも
+  import・フォールバック動作を確認
+
+
 ## Session: 2026-08-17
 
 ### Phase 1: MVP0 — 開発基盤 / Docker

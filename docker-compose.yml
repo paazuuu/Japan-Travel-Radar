@@ -44,6 +44,8 @@ services:
       BACKEND_URL: http://backend:8000
       # browser-side (client components / map) reaches backend via the host
       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+      # admin key stays server-side (SSR only), never shipped to the browser
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
     depends_on:
       - backend
     ports:

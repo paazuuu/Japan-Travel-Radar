@@ -13,9 +13,11 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://travel:CHANGE_ME@postgres:5432/japan_travel"
 
     ai_api_key: str = ""
+    ai_model: str = "claude-opus-5"
     maps_api_key: str = ""
 
     secret_key: str = "CHANGE_ME"
+    admin_api_key: str = ""  # required to call /admin endpoints
 
     frontend_url: str = "http://localhost:3000"
     backend_url: str = "http://localhost:8000"
