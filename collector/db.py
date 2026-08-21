@@ -145,11 +145,13 @@ def insert_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: st
         cur.execute(
             f"""
             INSERT INTO spots (name, description, prefecture_id, location, category,
-                               subcategory, official_url, source_id, source_url, status,
+                               subcategory, official_url, image_url, image_license,
+                               source_id, source_url, status,
                                content_hash, collected_at, last_collected_at, published_at,
                                license_note, data_class, source_key, external_id)
             VALUES (%(name)s, %(description)s, %(pref_id)s, {geo}, %(category)s,
-                    %(subcategory)s, %(official_url)s, %(source_id)s, %(source_url)s,
+                    %(subcategory)s, %(official_url)s, %(image_url)s, %(image_license)s,
+                    %(source_id)s, %(source_url)s,
                     %(status)s, %(content_hash)s, %(collected)s, %(collected)s, %(published)s,
                     %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
             ON CONFLICT (content_hash) DO NOTHING
@@ -185,6 +187,8 @@ def update_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: st
                 category = COALESCE(%(category)s, category),
                 subcategory = COALESCE(%(subcategory)s, subcategory),
                 official_url = COALESCE(%(official_url)s, official_url),
+                image_url = COALESCE(%(image_url)s, image_url),
+                image_license = COALESCE(%(image_license)s, image_license),
                 source_url = %(source_url)s,
                 content_hash = %(content_hash)s,
                 license_note = %(license)s,
@@ -207,6 +211,7 @@ def _spot_params(spot: NormalizedSpot, pref_id, source_id, status, collected) ->
         "name": spot.name, "description": spot.description, "pref_id": pref_id,
         "lat": spot.lat, "lng": spot.lng, "category": spot.category,
         "subcategory": spot.subcategory, "official_url": spot.official_url,
+        "image_url": spot.image_url, "image_license": spot.image_license,
         "source_id": source_id, "source_url": spot.url, "status": status,
         "content_hash": spot.content_hash, "collected": collected,
         "published": spot.published_at, "license": spot.license_note,

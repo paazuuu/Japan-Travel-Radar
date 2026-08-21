@@ -27,7 +27,7 @@ DEFAULT_ENDPOINT = "https://query.wikidata.org/sparql"
 # Tourist attraction (Q570116) via P31/P279*, located (P131*) in a Kansai pref,
 # with coordinates (P625) and a Japanese label.
 SPARQL = """
-SELECT ?item ?itemLabel ?lat ?lon ?prefLabel WHERE {
+SELECT ?item ?itemLabel ?lat ?lon ?prefLabel ?image WHERE {
   ?item wdt:P31/wdt:P279* wd:Q570116 .
   ?item p:P625/psv:P625 ?coordNode .
   ?coordNode wikibase:geoLatitude ?lat ; wikibase:geoLongitude ?lon .
@@ -36,6 +36,7 @@ SELECT ?item ?itemLabel ?lat ?lon ?prefLabel WHERE {
   ?pref rdfs:label ?prefLabel FILTER (lang(?prefLabel) = "ja")
   FILTER (?prefLabel IN ("大阪府","京都府","兵庫県","奈良県","滋賀県","和歌山県"))
   ?item rdfs:label ?itemLabel FILTER (lang(?itemLabel) = "ja")
+  OPTIONAL { ?item wdt:P18 ?image . }
 }
 LIMIT 400
 """.strip()
@@ -67,6 +68,8 @@ def parse_bindings(bindings: list[dict]) -> list[RawRecord]:
             category="sightseeing",
             prefecture_code=code,
             official_url=item,
+            image_url=val("image"),
+            image_license="Wikimedia Commons (see file page for license)",
             license_note="Wikidata, CC0 1.0",
         ))
     return out

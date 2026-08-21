@@ -67,6 +67,7 @@ MAPPING_PRESETS: dict[str, dict[str, list[str]]] = {
         "prefecture_name": ["都道府県名"],
         "external_id": ["POIコード", "ID", "id"],
         "category": ["カテゴリ", "分類", "種別"],
+        "image": ["画像", "画像URL", "image", "photo", "写真"],
     },
 }
 
@@ -152,6 +153,8 @@ def map_rows(rows: list[dict], spec: DatasetSpec) -> list[RawRecord]:
             subcategory=_pick(row, m.get("subcategory", [])) or d.get("subcategory"),
             prefecture_code=pref_code,
             official_url=_pick(row, m.get("official_url", [])),
+            image_url=_pick(row, m.get("image", [])),
+            image_license=spec.license_note,
             license_note=spec.license_note,
         ))
     return out

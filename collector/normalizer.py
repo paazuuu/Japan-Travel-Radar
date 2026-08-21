@@ -38,6 +38,8 @@ def normalize(record: RawRecord, tier: int) -> NormalizedSpot:
         subcategory=record.subcategory,
         prefecture_code=record.prefecture_code,
         official_url=record.official_url or record.url,
+        image_url=record.image_url,
+        image_license=record.image_license or record.license_note,
         published_at=record.published_at,
         license_note=record.license_note,
         data_class=_TIER_TO_CLASS.get(tier, "B"),

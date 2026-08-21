@@ -23,6 +23,8 @@ class SpotOut(BaseModel):
     estimated_budget_max: int | None = None
     access_text: str | None = None
     official_url: str | None = None
+    image_url: str | None = None
+    image_license: str | None = None
     source_url: str | None = None
     status: str
     lat: float | None = None
@@ -100,6 +102,7 @@ class RankingItem(BaseModel):
     prefecture_id: uuid.UUID | None = None
     lat: float | None = None
     lng: float | None = None
+    image_url: str | None = None
     ai_summary: str | None = None
     ai_confidence: float | None = None
     trend_score: float
@@ -129,6 +132,7 @@ class RestaurantOut(BaseModel):
     local_specialty: bool = False
     reservation_url: str | None = None
     official_url: str | None = None
+    image_url: str | None = None
     source_url: str | None = None
     lat: float | None = None
     lng: float | None = None

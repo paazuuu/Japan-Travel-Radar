@@ -1,5 +1,5 @@
 import { api, yen } from "../../../lib/api";
-import { Tags } from "../../../components/SpotCard";
+import { Tags, Thumb } from "../../../components/SpotCard";
 import { SpotActions } from "../../../components/SpotActions";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,10 @@ export default async function SpotDetail({
   return (
     <main>
       <a className="small muted" href="/">← Home</a>
+      <div style={{ margin: "0.5rem 0" }}>
+        <Thumb src={spot.image_url} alt={spot.name} />
+        {spot.image_license && <div className="small muted">画像: {spot.image_license}</div>}
+      </div>
       <div className="section-head">
         <h1>{spot.name}</h1>
         {spot.trend_score != null && <span className="badge hot">🔥 {spot.trend_score.toFixed(0)}</span>}

@@ -62,6 +62,8 @@ def rows_to_records(source_key: str, rows: list[dict],
                 subcategory=row.get("subcategory"),
                 prefecture_code=str(row["prefecture_code"]) if row.get("prefecture_code") else None,
                 official_url=row.get("official_url") or row.get("url"),
+                image_url=row.get("image_url") or row.get("image"),
+                image_license=row.get("image_license"),
                 published_at=published_at,
                 license_note=license_note or row.get("license_note"),
             )

@@ -1,6 +1,15 @@
 import type { RankingItem, Spot } from "../lib/api";
 import { yen } from "../lib/api";
 
+// Image thumbnail with a graceful gradient fallback when no image_url exists.
+export function Thumb({ src, alt, emoji = "🗾" }: { src?: string | null; alt: string; emoji?: string }) {
+  if (src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img className="thumb" src={src} alt={alt} loading="lazy" />;
+  }
+  return <div className="thumb thumb-ph" aria-hidden="true">{emoji}</div>;
+}
+
 export function ScoreBadge({ score, reference }: { score?: number | null; reference?: boolean }) {
   if (score == null) return null;
   return (
@@ -24,6 +33,7 @@ export function Tags({ tags }: { tags?: string[] }) {
 export function SpotCard({ spot }: { spot: Spot }) {
   return (
     <a href={`/spots/${spot.id}`} className="card">
+      <Thumb src={spot.image_url} alt={spot.name} />
       <div className="section-head">
         <span className="title">{spot.name}</span>
         <ScoreBadge score={spot.trend_score} />
@@ -44,6 +54,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
 export function RankingCard({ item, rank }: { item: RankingItem; rank: number }) {
   return (
     <a href={`/spots/${item.id}`} className="card">
+      <Thumb src={item.image_url} alt={item.name} />
       <div className="section-head">
         <span className="title">{rank}. {item.name}</span>
         <ScoreBadge score={item.trend_score} reference={item.is_reference} />

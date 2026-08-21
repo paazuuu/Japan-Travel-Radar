@@ -15,9 +15,22 @@ validated in the docker deployment; `parse_elements` is unit-tested offline.
 from __future__ import annotations
 
 import os
+from urllib.parse import quote
 
 from records import RawRecord
 from sources.base import SourceAdapter
+
+
+def _image_from_tags(tags: dict) -> str | None:
+    """Extract an image URL from common OSM tags (image / wikimedia_commons)."""
+    img = tags.get("image")
+    if img and img.startswith("http"):
+        return img
+    commons = tags.get("wikimedia_commons")
+    if commons and commons.startswith("File:"):
+        fname = commons[len("File:"):]
+        return "https://commons.wikimedia.org/wiki/Special:FilePath/" + quote(fname)
+    return None
 
 # Kansai prefectures: name (for Overpass area) -> JIS code (our prefectures.code)
 KANSAI = {
@@ -78,6 +91,8 @@ def parse_elements(elements: list[dict], prefecture_code: str) -> list[RawRecord
             category=category, subcategory=subcategory,
             prefecture_code=prefecture_code,
             official_url=tags.get("website"),
+            image_url=_image_from_tags(tags),
+            image_license="See source (OSM tag / Wikimedia Commons)",
             license_note="© OpenStreetMap contributors, ODbL 1.0",
         ))
     return out

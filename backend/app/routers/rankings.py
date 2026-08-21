@@ -44,7 +44,7 @@ def _latest_date_subq():
 def _query(order_col, db: Session, category: str | None, prefecture_id, limit: int,
            food_only: bool = False):
     stmt = (
-        select(Spot, _LAT, _LNG, _A.summary, _A.confidence, _TS)
+        select(Spot, _LAT, _LNG, _A.summary, _A.confidence, _TS, Spot.image_url)
         .join(_TS, _TS.spot_id == Spot.id)
         .outerjoin(_A, _A.spot_id == Spot.id)
         .where(Spot.status == "published")
@@ -70,6 +70,7 @@ def _to_item(row) -> RankingItem:
         prefecture_id=spot.prefecture_id,
         lat=row[1],
         lng=row[2],
+        image_url=row[6],
         ai_summary=row[3],
         ai_confidence=float(row[4]) if row[4] is not None else None,
         trend_score=float(ts.trend_score),

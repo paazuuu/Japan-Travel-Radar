@@ -19,6 +19,8 @@ export interface Spot {
   estimated_budget_max?: number | null;
   access_text?: string | null;
   official_url?: string | null;
+  image_url?: string | null;
+  image_license?: string | null;
   source_url?: string | null;
   status: string;
   lat?: number | null;
@@ -37,6 +39,7 @@ export interface RankingItem {
   category?: string | null;
   lat?: number | null;
   lng?: number | null;
+  image_url?: string | null;
   ai_summary?: string | null;
   ai_confidence?: number | null;
   trend_score: number;
@@ -63,6 +66,7 @@ export interface Restaurant {
   vegan: boolean;
   local_specialty: boolean;
   official_url?: string | null;
+  image_url?: string | null;
   source_url?: string | null;
   lat?: number | null;
   lng?: number | null;
