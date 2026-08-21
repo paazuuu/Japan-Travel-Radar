@@ -1,6 +1,7 @@
 // Client-side persistence for PWA features (favorites, recently viewed, saved plans).
 "use client";
 
+const TOKEN = "jtr:token";
 const FAV = "jtr:favorites";
 const RECENT = "jtr:recent";
 const PLANS = "jtr:plans";
@@ -23,6 +24,30 @@ function write<T>(key: string, value: T) {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* quota / private mode */
+  }
+}
+
+// ---- auth token (JWT) ----
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(TOKEN);
+  } catch {
+    return null;
+  }
+}
+export function setToken(token: string) {
+  try {
+    localStorage.setItem(TOKEN, token);
+  } catch {
+    /* ignore */
+  }
+}
+export function clearToken() {
+  try {
+    localStorage.removeItem(TOKEN);
+  } catch {
+    /* ignore */
   }
 }
 

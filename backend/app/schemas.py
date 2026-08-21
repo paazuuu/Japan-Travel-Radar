@@ -54,6 +54,28 @@ class AnalysisOut(BaseModel):
     reviewed: bool = False
 
 
+class RegisterIn(BaseModel):
+    email: str
+    password: str
+    display_name: str | None = None
+
+
+class LoginIn(BaseModel):
+    email: str
+    password: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class UserOut(BaseModel):
+    id: uuid.UUID
+    email: str
+    display_name: str | None = None
+
+
 class PlanRequest(BaseModel):
     origin: str = "大阪"
     origin_lat: float | None = None
