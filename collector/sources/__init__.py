@@ -22,6 +22,7 @@ from sources.events import EventsOpenDataSource
 from sources.government import GovernmentOpenDataSource
 from sources.opendata_url import OpenDataUrlSource
 from sources.overpass import OverpassSource
+from sources.overpass_food import OverpassRestaurantSource
 from sources.rss import RssSource
 from sources.tourism import TourismOpenDataSource
 from sources.wikidata import WikidataSource
@@ -39,6 +40,7 @@ def build_sources() -> list[SourceAdapter]:
         ConfiguredDatasetsSource(),
         # live real data — enrich the DB when network is available
         OverpassSource(),
+        OverpassRestaurantSource(),
         WikidataSource(),
         OpenDataUrlSource(),
         RssSource(),

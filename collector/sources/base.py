@@ -29,6 +29,8 @@ class SourceAdapter(ABC):
     prunes: bool = False
     #: if True, records are written to the events table instead of spots
     writes_events: bool = False
+    #: if True, records are written to the restaurants table instead of spots
+    writes_restaurants: bool = False
 
     @abstractmethod
     def fetch(self) -> list[RawRecord]:

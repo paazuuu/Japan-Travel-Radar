@@ -27,9 +27,11 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
     )
     run_id = dbmod.start_run(conn, source_id, source.key)
 
-    # Event sources write to the events table (first-class), not spots.
+    # Event / restaurant sources write to their own tables, not spots.
     if getattr(source, "writes_events", False):
-        return _run_event_source(conn, source, source_id, run_id, pref_map)
+        return _run_entity_source(conn, source, source_id, run_id, pref_map, dbmod.upsert_event)
+    if getattr(source, "writes_restaurants", False):
+        return _run_entity_source(conn, source, source_id, run_id, pref_map, dbmod.upsert_restaurant)
 
     fetched = inserted = updated = skipped = errors = pruned = 0
     seen_ext: set[str] = set()
@@ -101,8 +103,8 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
             "updated": updated, "skipped": skipped, "pruned": pruned, "errors": errors}
 
 
-def _run_event_source(conn, source, source_id, run_id, pref_map) -> dict:
-    """Collect an events source into the events table."""
+def _run_entity_source(conn, source, source_id, run_id, pref_map, upsert_fn) -> dict:
+    """Collect a source into a dedicated table (events / restaurants) via upsert_fn."""
     fetched = inserted = updated = skipped = errors = 0
     try:
         records = source.fetch()
@@ -121,7 +123,7 @@ def _run_event_source(conn, source, source_id, run_id, pref_map) -> dict:
             skipped += 1
             continue
         try:
-            res = dbmod.upsert_event(conn, rec, source_id=source_id, tier=source.tier, pref_map=pref_map)
+            res = upsert_fn(conn, rec, source_id=source_id, tier=source.tier, pref_map=pref_map)
             inserted += 1 if res == "inserted" else 0
             updated += 1 if res == "updated" else 0
             skipped += 1 if res == "locked" else 0
