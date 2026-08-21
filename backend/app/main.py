@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.db import engine
-from app.routers import admin, content, planner, rankings, restaurants, search, spots
+from app.routers import admin, content, events, planner, rankings, restaurants, search, spots
 
 settings = get_settings()
 
@@ -18,6 +18,7 @@ app.include_router(spots.router, prefix=API_PREFIX)
 app.include_router(restaurants.router, prefix=API_PREFIX)
 app.include_router(search.router, prefix=API_PREFIX)
 app.include_router(rankings.router, prefix=API_PREFIX)
+app.include_router(events.router, prefix=API_PREFIX)
 app.include_router(planner.router, prefix=API_PREFIX)
 app.include_router(content.router, prefix=API_PREFIX)
 app.include_router(admin.router, prefix=API_PREFIX)

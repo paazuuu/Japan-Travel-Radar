@@ -86,3 +86,13 @@ def test_five_sources_and_offline_fixtures_load():
     assert len(by_key["tourism_opendata"].fetch()) >= 10
     assert len(by_key["government_opendata"].fetch()) >= 8
     assert len(by_key["events_official"].fetch()) >= 6
+
+
+def test_events_source_is_event_writer_with_dates():
+    by_key = {s.key: s for s in build_sources()}
+    ev = by_key["events_official"]
+    assert ev.writes_events is True and ev.prunes is False
+    recs = ev.fetch()
+    withdates = [r for r in recs if r.start_at]
+    assert len(withdates) >= 6
+    assert all(r.category == "event" for r in recs)

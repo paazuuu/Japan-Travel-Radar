@@ -95,6 +95,22 @@ class PlanOut(BaseModel):
     items: list[PlanItemOut] = []
 
 
+class EventOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    description: str | None = None
+    category: str | None = None
+    subcategory: str | None = None
+    prefecture_id: uuid.UUID | None = None
+    lat: float | None = None
+    lng: float | None = None
+    start_at: str | None = None
+    end_at: str | None = None
+    official_url: str | None = None
+    image_url: str | None = None
+    source_url: str | None = None
+
+
 class RankingItem(BaseModel):
     id: uuid.UUID
     name: str

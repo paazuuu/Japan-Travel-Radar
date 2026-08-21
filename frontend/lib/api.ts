@@ -73,6 +73,21 @@ export interface Restaurant {
   distance_m?: number | null;
 }
 
+export interface EventItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  category?: string | null;
+  subcategory?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  start_at?: string | null;
+  end_at?: string | null;
+  official_url?: string | null;
+  image_url?: string | null;
+  source_url?: string | null;
+}
+
 async function getJSON<T>(url: string, headers?: Record<string, string>): Promise<T | null> {
   try {
     const res = await fetch(url, { cache: "no-store", headers });
@@ -100,6 +115,7 @@ export const api = {
   nearbyRestaurants: (lat: number, lng: number, extra = "") =>
     getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants/nearby?lat=${lat}&lng=${lng}${extra}`),
   restaurants: (params = "") => getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants?${params}`),
+  events: (params = "") => getJSON<EventItem[]>(`${serverBase()}/api/v1/events?${params}`),
   admin: <T>(path: string) => getJSON<T>(`${serverBase()}/api/v1/admin/${path}`, adminHeaders()),
 };
 

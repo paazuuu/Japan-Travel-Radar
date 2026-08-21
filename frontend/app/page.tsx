@@ -19,12 +19,13 @@ function Section({ title, children, href }: { title: string; children: React.Rea
 }
 
 export default async function Home() {
-  const [rising, trending, seasonal, food, dayTrip] = await Promise.all([
+  const [rising, trending, seasonal, food, dayTrip, events] = await Promise.all([
     api.rankings("rising"),
     api.rankings("trending"),
     api.rankings("seasonal"),
     api.rankings("food"),
     api.nearbySpots(OSAKA.lat, OSAKA.lng, 60000),
+    api.events("upcoming=true&limit=6"),
   ]);
 
   const empty = !rising && !trending && !dayTrip;
@@ -66,6 +67,18 @@ export default async function Home() {
       <Section title="🍣 人気グルメ" href="/food">
         <div className="grid">
           {(food ?? []).slice(0, 6).map((it, i) => <RankingCard key={it.id} item={it} rank={i + 1} />)}
+        </div>
+      </Section>
+
+      <Section title="🎆 開催中・近日のイベント" href="/events">
+        <div className="grid">
+          {(events ?? []).slice(0, 6).map((e) => (
+            <a key={e.id} href="/events" className="card">
+              <div className="title">{e.name}</div>
+              <div className="meta">📅 {e.start_at ?? "日程未定"}{e.subcategory ? ` · ${e.subcategory}` : ""}</div>
+              {e.description && <div className="small muted">{e.description}</div>}
+            </a>
+          ))}
         </div>
       </Section>
     </main>

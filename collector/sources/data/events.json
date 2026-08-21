@@ -1,10 +1,10 @@
 [
-  {"external_id": "e-gion", "name": "祇園祭", "prefecture_code": "26", "lat": 35.0037, "lng": 135.7681, "category": "event", "subcategory": "festival", "description": "京都・八坂神社の夏祭り。", "official_url": "https://www.gionmatsuri.or.jp/"},
-  {"external_id": "e-tenjin", "name": "天神祭", "prefecture_code": "27", "lat": 34.6949, "lng": 135.5122, "category": "event", "subcategory": "festival", "description": "大阪天満宮の夏祭り・船渡御。", "official_url": null},
-  {"external_id": "e-kishiwada", "name": "岸和田だんじり祭", "prefecture_code": "27", "lat": 34.4600, "lng": 135.3710, "category": "event", "subcategory": "festival", "description": "勇壮なだんじりの祭り。", "official_url": null},
-  {"external_id": "e-nara-omizutori", "name": "東大寺 お水取り", "prefecture_code": "29", "lat": 34.6890, "lng": 135.8430, "category": "event", "subcategory": "festival", "description": "二月堂の修二会。", "official_url": null},
-  {"external_id": "e-kobe-luminarie", "name": "神戸ルミナリエ", "prefecture_code": "28", "lat": 34.6900, "lng": 135.1930, "category": "event", "subcategory": "illumination", "description": "冬の光の祭典。", "official_url": null},
-  {"external_id": "e-arashiyama-hanatouro", "name": "嵐山花灯路", "prefecture_code": "26", "lat": 35.0094, "lng": 135.6770, "category": "event", "subcategory": "illumination", "description": "嵐山一帯の灯りイベント。", "official_url": null},
-  {"external_id": "e-nachi-fire", "name": "那智の扇祭り", "prefecture_code": "30", "lat": 33.6680, "lng": 135.8900, "category": "event", "subcategory": "festival", "description": "熊野那智大社の火祭り。", "official_url": null},
-  {"external_id": "e-otsu", "name": "大津祭", "prefecture_code": "25", "lat": 35.0040, "lng": 135.8650, "category": "event", "subcategory": "festival", "description": "からくり山車の祭り。", "official_url": null}
+  {"external_id": "e-gion", "name": "祇園祭", "prefecture_code": "26", "lat": 35.0037, "lng": 135.7681, "category": "event", "subcategory": "festival", "description": "京都・八坂神社の夏祭り。", "official_url": "https://www.gionmatsuri.or.jp/", "start_at": "2026-07-01", "end_at": "2026-07-31"},
+  {"external_id": "e-tenjin", "name": "天神祭", "prefecture_code": "27", "lat": 34.6949, "lng": 135.5122, "category": "event", "subcategory": "festival", "description": "大阪天満宮の夏祭り・船渡御。", "start_at": "2026-07-24", "end_at": "2026-07-25"},
+  {"external_id": "e-kishiwada", "name": "岸和田だんじり祭", "prefecture_code": "27", "lat": 34.4600, "lng": 135.3710, "category": "event", "subcategory": "festival", "description": "勇壮なだんじりの祭り。", "start_at": "2026-09-12", "end_at": "2026-09-13"},
+  {"external_id": "e-nara-omizutori", "name": "東大寺 お水取り", "prefecture_code": "29", "lat": 34.6890, "lng": 135.8430, "category": "event", "subcategory": "festival", "description": "二月堂の修二会。", "start_at": "2026-03-01", "end_at": "2026-03-14"},
+  {"external_id": "e-kobe-luminarie", "name": "神戸ルミナリエ", "prefecture_code": "28", "lat": 34.6900, "lng": 135.1930, "category": "event", "subcategory": "illumination", "description": "冬の光の祭典。", "start_at": "2026-01-30", "end_at": "2026-02-08"},
+  {"external_id": "e-arashiyama-hanatouro", "name": "嵐山花灯路", "prefecture_code": "26", "lat": 35.0094, "lng": 135.6770, "category": "event", "subcategory": "illumination", "description": "嵐山一帯の灯りイベント。", "start_at": "2026-12-11", "end_at": "2026-12-20"},
+  {"external_id": "e-nachi-fire", "name": "那智の扇祭り", "prefecture_code": "30", "lat": 33.6680, "lng": 135.8900, "category": "event", "subcategory": "festival", "description": "熊野那智大社の火祭り。", "start_at": "2026-07-14", "end_at": "2026-07-14"},
+  {"external_id": "e-otsu", "name": "大津祭", "prefecture_code": "25", "lat": 35.0040, "lng": 135.8650, "category": "event", "subcategory": "festival", "description": "からくり山車の祭り。", "start_at": "2026-10-10", "end_at": "2026-10-11"}
 ]

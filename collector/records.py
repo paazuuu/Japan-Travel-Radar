@@ -26,6 +26,8 @@ class RawRecord:
     image_license: str | None = None
     published_at: datetime | None = None
     license_note: str | None = None
+    start_at: str | None = None   # events: 'YYYY-MM-DD' or ISO
+    end_at: str | None = None
     extra: dict = field(default_factory=dict)
 
 
