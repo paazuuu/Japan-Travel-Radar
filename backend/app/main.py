@@ -31,6 +31,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Rate limiting (API_SPEC). Configurable via RATE_LIMIT_PER_MIN; 0 disables.
+from app.middleware import RateLimiterMiddleware  # noqa: E402
+
+app.add_middleware(RateLimiterMiddleware)
+
 
 @app.get("/")
 def root() -> dict:
