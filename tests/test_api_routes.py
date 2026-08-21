@@ -30,6 +30,7 @@ def test_openapi_lists_mvp1_routes():
         "/api/v1/admin/sources",
         "/api/v1/admin/collector-runs",
         "/api/v1/admin/errors",
+        "/api/v1/admin/audit-log",
         "/api/v1/rankings/{kind}",
         "/api/v1/admin/spots/{spot_id}/score",
         "/api/v1/planner/generate",
