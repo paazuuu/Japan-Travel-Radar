@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app import llm
 from app.db import get_db
 from app.planner import engine
+from app.routers.auth import optional_user
 from app.schemas import PlanOut, PlanRequest
 
 router = APIRouter(prefix="/planner", tags=["planner"])
@@ -81,7 +82,8 @@ def _pick_restaurant(db: Session, lat: float, lng: float, radius: int, food: str
 
 
 @router.post("/generate", response_model=PlanOut)
-def generate(req: PlanRequest, db: Session = Depends(get_db)) -> PlanOut:
+def generate(req: PlanRequest, db: Session = Depends(get_db),
+             user: dict | None = Depends(optional_user)) -> PlanOut:
     origin = _resolve_origin(req)
     radius = RADIUS.get(req.transport, 60000)
 
@@ -143,23 +145,25 @@ def generate(req: PlanRequest, db: Session = Depends(get_db)) -> PlanOut:
         if nicer:
             summary = nicer
 
-    plan_id = _persist(db, req, origin, result, summary)
+    plan_id = _persist(db, req, origin, result, summary, user_id=user["id"] if user else None)
     return _to_out(db, plan_id)
 
 
-def _persist(db: Session, req: PlanRequest, origin, result: engine.PlanResult, summary: str) -> str:
+def _persist(db: Session, req: PlanRequest, origin, result: engine.PlanResult, summary: str,
+             user_id: str | None = None) -> str:
     prefs = {"purpose": req.purpose, "food": req.food, "travel_type": req.travel_type}
     pid = db.execute(text("""
         INSERT INTO travel_plans (origin, origin_lat, origin_lng, start_date, days, budget,
-                                  party_size, transport, preferences, summary, total_cost, within_budget)
+                                  party_size, transport, preferences, summary, total_cost,
+                                  within_budget, user_id)
         VALUES (:origin, :lat, :lng, :start_date, :days, :budget, :party, :transport,
-                CAST(:prefs AS JSONB), :summary, :total, :within)
+                CAST(:prefs AS JSONB), :summary, :total, :within, :user_id)
         RETURNING id
     """), {
         "origin": req.origin, "lat": origin[0], "lng": origin[1], "start_date": req.start_date,
         "days": req.days, "budget": req.budget, "party": req.party_size, "transport": req.transport,
         "prefs": json.dumps(prefs, ensure_ascii=False), "summary": summary,
-        "total": result.total_cost, "within": result.within_budget,
+        "total": result.total_cost, "within": result.within_budget, "user_id": user_id,
     }).scalar_one()
 
     for it in result.items:
