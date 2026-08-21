@@ -23,6 +23,8 @@ class SpotOut(BaseModel):
     estimated_budget_max: int | None = None
     access_text: str | None = None
     official_url: str | None = None
+    image_url: str | None = None
+    image_license: str | None = None
     source_url: str | None = None
     status: str
     lat: float | None = None
@@ -93,6 +95,22 @@ class PlanOut(BaseModel):
     items: list[PlanItemOut] = []
 
 
+class EventOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    description: str | None = None
+    category: str | None = None
+    subcategory: str | None = None
+    prefecture_id: uuid.UUID | None = None
+    lat: float | None = None
+    lng: float | None = None
+    start_at: str | None = None
+    end_at: str | None = None
+    official_url: str | None = None
+    image_url: str | None = None
+    source_url: str | None = None
+
+
 class RankingItem(BaseModel):
     id: uuid.UUID
     name: str
@@ -100,6 +118,7 @@ class RankingItem(BaseModel):
     prefecture_id: uuid.UUID | None = None
     lat: float | None = None
     lng: float | None = None
+    image_url: str | None = None
     ai_summary: str | None = None
     ai_confidence: float | None = None
     trend_score: float
@@ -129,6 +148,7 @@ class RestaurantOut(BaseModel):
     local_specialty: bool = False
     reservation_url: str | None = None
     official_url: str | None = None
+    image_url: str | None = None
     source_url: str | None = None
     lat: float | None = None
     lng: float | None = None

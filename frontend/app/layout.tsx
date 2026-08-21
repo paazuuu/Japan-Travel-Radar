@@ -22,6 +22,7 @@ const links = [
   ["/ranking", "📈 Ranking"],
   ["/map", "🗺 Map"],
   ["/food", "🍣 Food"],
+  ["/events", "🎆 Events"],
   ["/planner", "🧳 Planner"],
   ["/saved", "⭐ Saved"],
   ["/admin", "⚙ Admin"],

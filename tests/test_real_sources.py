@@ -18,7 +18,8 @@ from sources.wikidata import parse_bindings  # noqa: E402
 OVERPASS_SAMPLE = {
     "elements": [
         {"type": "node", "id": 1, "lat": 34.6873, "lon": 135.5259,
-         "tags": {"name": "大阪城", "historic": "castle", "website": "https://osakacastle.net"}},
+         "tags": {"name": "大阪城", "historic": "castle", "website": "https://osakacastle.net",
+                  "wikimedia_commons": "File:Osaka Castle 02bs3200.jpg"}},
         {"type": "way", "id": 2, "center": {"lat": 34.6851, "lon": 135.843},
          "tags": {"name": "奈良公園", "leisure": "park"}},
         {"type": "node", "id": 3, "lat": 34.9, "lon": 135.7, "tags": {"tourism": "museum", "name": "博物館"}},
@@ -31,7 +32,8 @@ WIKIDATA_SAMPLE = [
     {"item": {"value": "http://www.wikidata.org/entity/Q182022"},
      "itemLabel": {"value": "清水寺"},
      "lat": {"value": "34.9948"}, "lon": {"value": "135.785"},
-     "prefLabel": {"value": "京都府"}},
+     "prefLabel": {"value": "京都府"},
+     "image": {"value": "http://commons.wikimedia.org/wiki/Special:FilePath/Kiyomizu-dera.jpg"}},
     {"item": {"value": "http://www.wikidata.org/entity/Q999"},
      "itemLabel": {"value": "圏外"},
      "lat": {"value": "35.0"}, "lon": {"value": "135.0"},
@@ -48,6 +50,8 @@ def test_overpass_parse_maps_category_and_skips_bad_rows():
     assert castle.prefecture_code == "27"
     assert castle.external_id == "node/1"
     assert "ODbL" in (castle.license_note or "")
+    # image extracted from wikimedia_commons tag -> Commons FilePath URL
+    assert castle.image_url and "Special:FilePath" in castle.image_url
     park = next(r for r in recs if r.name == "奈良公園")
     assert park.category == "nature" and (park.lat, park.lng) == (34.6851, 135.843)
 
@@ -59,6 +63,7 @@ def test_wikidata_parse_filters_to_kansai_and_maps_pref():
     assert r.name == "清水寺" and r.prefecture_code == "26"
     assert r.external_id == "Q182022"
     assert "CC0" in (r.license_note or "")
+    assert r.image_url and "FilePath" in r.image_url
 
 
 def test_registry_includes_real_sources():

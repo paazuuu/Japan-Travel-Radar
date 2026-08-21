@@ -27,6 +27,12 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
     )
     run_id = dbmod.start_run(conn, source_id, source.key)
 
+    # Event / restaurant sources write to their own tables, not spots.
+    if getattr(source, "writes_events", False):
+        return _run_entity_source(conn, source, source_id, run_id, pref_map, dbmod.upsert_event)
+    if getattr(source, "writes_restaurants", False):
+        return _run_entity_source(conn, source, source_id, run_id, pref_map, dbmod.upsert_restaurant)
+
     fetched = inserted = updated = skipped = errors = pruned = 0
     seen_ext: set[str] = set()
     try:
@@ -95,6 +101,41 @@ def run_source(conn, source: SourceAdapter, pref_map, known) -> dict:
                      skipped=skipped, error_count=errors, updated=updated, pruned=pruned)
     return {"source": source.key, "status": "success", "fetched": fetched, "inserted": inserted,
             "updated": updated, "skipped": skipped, "pruned": pruned, "errors": errors}
+
+
+def _run_entity_source(conn, source, source_id, run_id, pref_map, upsert_fn) -> dict:
+    """Collect a source into a dedicated table (events / restaurants) via upsert_fn."""
+    fetched = inserted = updated = skipped = errors = 0
+    try:
+        records = source.fetch()
+    except Exception as exc:
+        dbmod.log_error(conn, run_id, source.key, "fetch", str(exc))
+        dbmod.finish_run(conn, run_id, status="failed", fetched=0, inserted=0, skipped=0, error_count=1)
+        return {"source": source.key, "status": "failed", "inserted": 0, "errors": 1}
+
+    for etype, msg in getattr(source, "errors", []):
+        dbmod.log_error(conn, run_id, source.key, etype, msg)
+        errors += 1
+
+    for rec in records:
+        fetched += 1
+        if not rec.name:
+            skipped += 1
+            continue
+        try:
+            res = upsert_fn(conn, rec, source_id=source_id, tier=source.tier, pref_map=pref_map)
+            inserted += 1 if res == "inserted" else 0
+            updated += 1 if res == "updated" else 0
+            skipped += 1 if res == "locked" else 0
+        except Exception as exc:
+            conn.rollback()
+            dbmod.log_error(conn, run_id, source.key, "db", str(exc))
+            errors += 1
+
+    dbmod.finish_run(conn, run_id, status="success", fetched=fetched, inserted=inserted,
+                     skipped=skipped, error_count=errors, updated=updated, pruned=0)
+    return {"source": source.key, "status": "success", "fetched": fetched, "inserted": inserted,
+            "updated": updated, "skipped": skipped, "pruned": 0, "errors": errors}
 
 
 def main() -> int:

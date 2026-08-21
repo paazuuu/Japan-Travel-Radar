@@ -19,6 +19,8 @@ export interface Spot {
   estimated_budget_max?: number | null;
   access_text?: string | null;
   official_url?: string | null;
+  image_url?: string | null;
+  image_license?: string | null;
   source_url?: string | null;
   status: string;
   lat?: number | null;
@@ -37,6 +39,7 @@ export interface RankingItem {
   category?: string | null;
   lat?: number | null;
   lng?: number | null;
+  image_url?: string | null;
   ai_summary?: string | null;
   ai_confidence?: number | null;
   trend_score: number;
@@ -63,10 +66,26 @@ export interface Restaurant {
   vegan: boolean;
   local_specialty: boolean;
   official_url?: string | null;
+  image_url?: string | null;
   source_url?: string | null;
   lat?: number | null;
   lng?: number | null;
   distance_m?: number | null;
+}
+
+export interface EventItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  category?: string | null;
+  subcategory?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  start_at?: string | null;
+  end_at?: string | null;
+  official_url?: string | null;
+  image_url?: string | null;
+  source_url?: string | null;
 }
 
 async function getJSON<T>(url: string, headers?: Record<string, string>): Promise<T | null> {
@@ -96,6 +115,7 @@ export const api = {
   nearbyRestaurants: (lat: number, lng: number, extra = "") =>
     getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants/nearby?lat=${lat}&lng=${lng}${extra}`),
   restaurants: (params = "") => getJSON<Restaurant[]>(`${serverBase()}/api/v1/restaurants?${params}`),
+  events: (params = "") => getJSON<EventItem[]>(`${serverBase()}/api/v1/events?${params}`),
   admin: <T>(path: string) => getJSON<T>(`${serverBase()}/api/v1/admin/${path}`, adminHeaders()),
 };
 

@@ -1,4 +1,5 @@
 import { api, yen } from "../../lib/api";
+import { Thumb } from "../../components/SpotCard";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export default async function FoodPage({
       <div className="grid">
         {(restaurants ?? []).map((r) => (
           <div key={r.id} className="card">
+            <Thumb src={r.image_url} alt={r.name} emoji="🍽" />
             <div className="title">{r.name}</div>
             <div className="meta">{r.category ?? "—"} · {yen(r.price_min)}–{yen(r.price_max)}</div>
             <div className="tagrow">{attrs(r).map((a) => <span key={a} className="badge">{a}</span>)}</div>

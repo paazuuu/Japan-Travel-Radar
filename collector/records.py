@@ -22,8 +22,12 @@ class RawRecord:
     subcategory: str | None = None
     prefecture_code: str | None = None
     official_url: str | None = None
+    image_url: str | None = None
+    image_license: str | None = None
     published_at: datetime | None = None
     license_note: str | None = None
+    start_at: str | None = None   # events: 'YYYY-MM-DD' or ISO
+    end_at: str | None = None
     extra: dict = field(default_factory=dict)
 
 
@@ -43,6 +47,8 @@ class NormalizedSpot:
     subcategory: str | None
     prefecture_code: str | None
     official_url: str | None
+    image_url: str | None
+    image_license: str | None
     published_at: datetime | None
     license_note: str | None
     data_class: str

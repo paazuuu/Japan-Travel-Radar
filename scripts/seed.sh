@@ -16,7 +16,9 @@ docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
     < database/migrations/0002_core_schema.sql
 docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
     < database/seeds/seed_kansai.sql
+docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+    < database/seeds/seed_events.sql
 
 echo "==> Row counts:"
 docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
-    "SELECT 'spots' t, count(*) FROM spots UNION ALL SELECT 'restaurants', count(*) FROM restaurants;"
+    "SELECT 'spots' t, count(*) FROM spots UNION ALL SELECT 'restaurants', count(*) FROM restaurants UNION ALL SELECT 'events', count(*) FROM events;"

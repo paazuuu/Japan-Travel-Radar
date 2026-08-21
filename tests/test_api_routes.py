@@ -38,6 +38,9 @@ def test_openapi_lists_mvp1_routes():
         "/api/v1/content/wechat",
         "/api/v1/content/video-script",
         "/api/v1/content/chinese",
+        "/api/v1/events",
+        "/api/v1/events/upcoming",
+        "/api/v1/events/nearby",
     }
     missing = expected - set(paths)
     assert not missing, f"missing routes: {missing}"

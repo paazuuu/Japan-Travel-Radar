@@ -47,6 +47,12 @@ def test_custom_mapping_and_default_prefecture_code():
     assert r.official_url == "http://x" and r.lat == 34.7
 
 
+def test_image_column_mapping():
+    spec = build_spec({"key": "i", "name": "i", "mapping_preset": "suishou_kanko"})
+    rows = [{"名称": "X", "緯度": "34.7", "経度": "135.5", "画像": "https://img/x.jpg"}]
+    assert map_rows(rows, spec)[0].image_url == "https://img/x.jpg"
+
+
 def test_bundled_sample_csv_fetches_offline():
     # The default config's sample dataset uses a local path -> works without network.
     src = ConfiguredDatasetsSource()

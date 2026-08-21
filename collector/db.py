@@ -145,11 +145,13 @@ def insert_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: st
         cur.execute(
             f"""
             INSERT INTO spots (name, description, prefecture_id, location, category,
-                               subcategory, official_url, source_id, source_url, status,
+                               subcategory, official_url, image_url, image_license,
+                               source_id, source_url, status,
                                content_hash, collected_at, last_collected_at, published_at,
                                license_note, data_class, source_key, external_id)
             VALUES (%(name)s, %(description)s, %(pref_id)s, {geo}, %(category)s,
-                    %(subcategory)s, %(official_url)s, %(source_id)s, %(source_url)s,
+                    %(subcategory)s, %(official_url)s, %(image_url)s, %(image_license)s,
+                    %(source_id)s, %(source_url)s,
                     %(status)s, %(content_hash)s, %(collected)s, %(collected)s, %(published)s,
                     %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
             ON CONFLICT (content_hash) DO NOTHING
@@ -185,6 +187,8 @@ def update_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: st
                 category = COALESCE(%(category)s, category),
                 subcategory = COALESCE(%(subcategory)s, subcategory),
                 official_url = COALESCE(%(official_url)s, official_url),
+                image_url = COALESCE(%(image_url)s, image_url),
+                image_license = COALESCE(%(image_license)s, image_license),
                 source_url = %(source_url)s,
                 content_hash = %(content_hash)s,
                 license_note = %(license)s,
@@ -207,12 +211,131 @@ def _spot_params(spot: NormalizedSpot, pref_id, source_id, status, collected) ->
         "name": spot.name, "description": spot.description, "pref_id": pref_id,
         "lat": spot.lat, "lng": spot.lng, "category": spot.category,
         "subcategory": spot.subcategory, "official_url": spot.official_url,
+        "image_url": spot.image_url, "image_license": spot.image_license,
         "source_id": source_id, "source_url": spot.url, "status": status,
         "content_hash": spot.content_hash, "collected": collected,
         "published": spot.published_at, "license": spot.license_note,
         "data_class": spot.data_class, "source_key": spot.source_key,
         "external_id": spot.external_id,
     }
+
+
+def upsert_event(conn: psycopg.Connection, rec, *, source_id: str, tier: int,
+                 pref_map: dict[str, str]) -> str:
+    """Insert/refresh an event by (source_key, external_id). Returns inserted/updated/locked."""
+    from records import content_hash
+    from normalizer import normalize_name
+
+    pref_id = pref_map.get(rec.prefecture_code) if rec.prefecture_code else None
+    chash = content_hash(rec.source_key, rec.external_id, normalize_name(rec.name), rec.lat, rec.lng)
+    data_class = {1: "A", 2: "B", 3: "C"}.get(tier, "B")
+    geo = ("ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography"
+           if rec.lat is not None and rec.lng is not None else "NULL")
+    params = {
+        "name": rec.name, "description": rec.description, "pref_id": pref_id,
+        "lat": rec.lat, "lng": rec.lng, "category": rec.category or "event",
+        "subcategory": rec.subcategory, "official_url": rec.official_url,
+        "image_url": rec.image_url, "image_license": rec.image_license,
+        "start_at": rec.start_at, "end_at": rec.end_at, "source_id": source_id,
+        "source_url": rec.url, "content_hash": chash, "license": rec.license_note,
+        "data_class": data_class, "source_key": rec.source_key, "external_id": rec.external_id,
+    }
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            INSERT INTO events (name, description, prefecture_id, location, category, subcategory,
+                                official_url, image_url, image_license, start_at, end_at,
+                                source_id, source_url, content_hash, collected_at, license_note,
+                                data_class, source_key, external_id)
+            VALUES (%(name)s, %(description)s, %(pref_id)s, {geo}, %(category)s, %(subcategory)s,
+                    %(official_url)s, %(image_url)s, %(image_license)s, %(start_at)s, %(end_at)s,
+                    %(source_id)s, %(source_url)s, %(content_hash)s, now(), %(license)s,
+                    %(data_class)s, %(source_key)s, %(external_id)s)
+            ON CONFLICT (source_key, external_id) DO UPDATE SET
+                name = EXCLUDED.name, description = COALESCE(EXCLUDED.description, events.description),
+                location = EXCLUDED.location, subcategory = EXCLUDED.subcategory,
+                official_url = COALESCE(EXCLUDED.official_url, events.official_url),
+                image_url = COALESCE(EXCLUDED.image_url, events.image_url),
+                start_at = EXCLUDED.start_at, end_at = EXCLUDED.end_at,
+                content_hash = EXCLUDED.content_hash, collected_at = now(), updated_at = now()
+            WHERE events.locked = false
+            RETURNING (xmax = 0) AS inserted
+            """,
+            params,
+        )
+        row = cur.fetchone()
+    conn.commit()
+    if row is None:
+        return "locked"
+    return "inserted" if row[0] else "updated"
+
+
+def upsert_restaurant(conn: psycopg.Connection, rec, *, source_id: str, tier: int,
+                      pref_map: dict[str, str]) -> str:
+    """Insert/refresh a restaurant by (source_key, external_id). food attributes
+    are inferred from the cuisine/name. Returns inserted/updated/locked."""
+    from records import content_hash
+    from normalizer import normalize_name
+    from food import infer_food
+
+    pref_id = pref_map.get(rec.prefecture_code) if rec.prefecture_code else None
+    chash = content_hash(rec.source_key, rec.external_id, normalize_name(rec.name), rec.lat, rec.lng)
+    f = infer_food(rec.category, rec.name)
+    data_class = {1: "A", 2: "B", 3: "C"}.get(tier, "B")
+    geo = ("ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography"
+           if rec.lat is not None and rec.lng is not None else "NULL")
+    params = {
+        "name": rec.name, "pref_id": pref_id, "lat": rec.lat, "lng": rec.lng,
+        "category": f["category"], "fish": f["fish"], "meat": f["meat"],
+        "vegetarian": f["vegetarian"], "vegan": f["vegan"], "local": f["local_specialty"],
+        "official_url": rec.official_url, "image_url": rec.image_url,
+        "source_id": source_id, "source_url": rec.url, "content_hash": chash,
+        "license": rec.license_note, "data_class": data_class,
+        "source_key": rec.source_key, "external_id": rec.external_id,
+    }
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            INSERT INTO restaurants (name, prefecture_id, location, category, fish, meat,
+                                     vegetarian, vegan, local_specialty, official_url, image_url,
+                                     source_id, source_url, content_hash, collected_at,
+                                     license_note, data_class, source_key, external_id)
+            VALUES (%(name)s, %(pref_id)s, {geo}, %(category)s, %(fish)s, %(meat)s,
+                    %(vegetarian)s, %(vegan)s, %(local)s, %(official_url)s, %(image_url)s,
+                    %(source_id)s, %(source_url)s, %(content_hash)s, now(),
+                    %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
+            ON CONFLICT (source_key, external_id) DO UPDATE SET
+                name = EXCLUDED.name, location = EXCLUDED.location, category = EXCLUDED.category,
+                fish = EXCLUDED.fish, meat = EXCLUDED.meat, vegetarian = EXCLUDED.vegetarian,
+                vegan = EXCLUDED.vegan, local_specialty = EXCLUDED.local_specialty,
+                official_url = COALESCE(EXCLUDED.official_url, restaurants.official_url),
+                image_url = COALESCE(EXCLUDED.image_url, restaurants.image_url),
+                content_hash = EXCLUDED.content_hash, collected_at = now(), updated_at = now()
+            WHERE restaurants.locked = false
+            RETURNING (xmax = 0) AS inserted
+            """,
+            params,
+        )
+        row = cur.fetchone()
+        # also record inferred food tags
+        if row is not None:
+            cur.execute("SELECT id FROM restaurants WHERE source_key=%s AND external_id=%s",
+                        (rec.source_key, rec.external_id))
+            rid_row = cur.fetchone()
+            if rid_row:
+                for tag in f["tags"]:
+                    cur.execute(
+                        """
+                        INSERT INTO food_tags (restaurant_id, tag, confidence, source_url)
+                        VALUES (%s, %s, 0.7, %s)
+                        ON CONFLICT (restaurant_id, tag) DO NOTHING
+                        """,
+                        (rid_row[0], tag, rec.url),
+                    )
+    conn.commit()
+    if row is None:
+        return "locked"
+    return "inserted" if row[0] else "updated"
 
 
 def prune_missing(conn: psycopg.Connection, source_key: str, seen_external_ids: set[str]) -> int:

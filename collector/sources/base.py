@@ -27,6 +27,10 @@ class SourceAdapter(ABC):
     #: full-snapshot source? if True, items absent from a run are soft-hidden
     #: (deletion detection). Incremental feeds (RSS/YouTube) must stay False.
     prunes: bool = False
+    #: if True, records are written to the events table instead of spots
+    writes_events: bool = False
+    #: if True, records are written to the restaurants table instead of spots
+    writes_restaurants: bool = False
 
     @abstractmethod
     def fetch(self) -> list[RawRecord]:
@@ -62,6 +66,10 @@ def rows_to_records(source_key: str, rows: list[dict],
                 subcategory=row.get("subcategory"),
                 prefecture_code=str(row["prefecture_code"]) if row.get("prefecture_code") else None,
                 official_url=row.get("official_url") or row.get("url"),
+                image_url=row.get("image_url") or row.get("image"),
+                image_license=row.get("image_license"),
+                start_at=row.get("start_at"),
+                end_at=row.get("end_at"),
                 published_at=published_at,
                 license_note=license_note or row.get("license_note"),
             )

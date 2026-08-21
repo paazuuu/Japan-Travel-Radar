@@ -9,7 +9,8 @@ class EventsOpenDataSource(SourceAdapter):
     name = "Official Event Pages (fixture)"
     source_type = "events"
     tier = 1
-    prunes = True
+    prunes = False           # events change often; don't prune the whole set
+    writes_events = True      # collected into the events table, not spots
     source_url = None
     license_note = "Official event listings sample."
 
