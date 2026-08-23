@@ -154,7 +154,7 @@ def insert_spot(conn: psycopg.Connection, spot: NormalizedSpot, *, source_id: st
                     %(source_id)s, %(source_url)s,
                     %(status)s, %(content_hash)s, %(collected)s, %(collected)s, %(published)s,
                     %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
-            ON CONFLICT (content_hash) DO NOTHING
+            ON CONFLICT (content_hash) WHERE content_hash IS NOT NULL DO NOTHING
             RETURNING id
             """,
             _spot_params(spot, pref_id, source_id, status, collected),
@@ -251,7 +251,9 @@ def upsert_event(conn: psycopg.Connection, rec, *, source_id: str, tier: int,
                     %(official_url)s, %(image_url)s, %(image_license)s, %(start_at)s, %(end_at)s,
                     %(source_id)s, %(source_url)s, %(content_hash)s, now(), %(license)s,
                     %(data_class)s, %(source_key)s, %(external_id)s)
-            ON CONFLICT (source_key, external_id) DO UPDATE SET
+            ON CONFLICT (source_key, external_id)
+                WHERE source_key IS NOT NULL AND external_id IS NOT NULL
+            DO UPDATE SET
                 name = EXCLUDED.name, description = COALESCE(EXCLUDED.description, events.description),
                 location = EXCLUDED.location, subcategory = EXCLUDED.subcategory,
                 official_url = COALESCE(EXCLUDED.official_url, events.official_url),
@@ -304,7 +306,9 @@ def upsert_restaurant(conn: psycopg.Connection, rec, *, source_id: str, tier: in
                     %(vegetarian)s, %(vegan)s, %(local)s, %(official_url)s, %(image_url)s,
                     %(source_id)s, %(source_url)s, %(content_hash)s, now(),
                     %(license)s, %(data_class)s, %(source_key)s, %(external_id)s)
-            ON CONFLICT (source_key, external_id) DO UPDATE SET
+            ON CONFLICT (source_key, external_id)
+                WHERE source_key IS NOT NULL AND external_id IS NOT NULL
+            DO UPDATE SET
                 name = EXCLUDED.name, location = EXCLUDED.location, category = EXCLUDED.category,
                 fish = EXCLUDED.fish, meat = EXCLUDED.meat, vegetarian = EXCLUDED.vegetarian,
                 vegan = EXCLUDED.vegan, local_specialty = EXCLUDED.local_specialty,

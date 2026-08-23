@@ -25,6 +25,7 @@ const links = [
   ["/events", "🎆 Events"],
   ["/planner", "🧳 Planner"],
   ["/saved", "⭐ Saved"],
+  ["/login", "👤 Account"],
   ["/admin", "⚙ Admin"],
 ];
 
