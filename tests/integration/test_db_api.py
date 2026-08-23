@@ -68,6 +68,25 @@ def test_content_chinese_draft(client):
     assert "xiaohongshu" in resp.json()["drafts"]
 
 
+def test_auth_register_login_favorite_flow(client):
+    email = "ci-user@example.com"
+    reg = client.post("/api/v1/auth/register", json={"email": email, "password": "pw123456"})
+    assert reg.status_code in (200, 409)
+    token = client.post("/api/v1/auth/login", json={"email": email, "password": "pw123456"}).json()["access_token"]
+    auth = {"Authorization": f"Bearer {token}"}
+
+    # protected route requires the token
+    assert client.get("/api/v1/me/favorites").status_code == 401
+    assert client.get("/api/v1/auth/me", headers=auth).json()["email"] == email
+
+    spot_id = client.get("/api/v1/spots?limit=1").json()[0]["id"]
+    assert client.put(f"/api/v1/me/favorites/{spot_id}", headers=auth).json()["favorited"] is True
+    favs = client.get("/api/v1/me/favorites", headers=auth).json()
+    assert any(s["id"] == spot_id for s in favs)
+    client.delete(f"/api/v1/me/favorites/{spot_id}", headers=auth)
+    assert all(s["id"] != spot_id for s in client.get("/api/v1/me/favorites", headers=auth).json())
+
+
 def test_admin_requires_key(client):
     # ADMIN_API_KEY is set in CI; without header -> 401
     assert client.get("/api/v1/admin/stats").status_code == 401
