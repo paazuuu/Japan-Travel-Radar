@@ -33,9 +33,18 @@ def _base_select(*extra):
     )
 
 
+# Fields computed from joined columns, NOT read from the Spot ORM object.
+# (Notably `tags` is the AI-analysis tag list here, which must not be pulled from
+#  the Spot.tags relationship — that holds SpotTag ORM objects and would fail
+#  SpotOut validation.)
+_COMPUTED = {"lat", "lng", "distance_m", "ai_summary", "tags", "travel_types",
+             "ai_confidence", "trend_score"}
+_SCALAR_FIELDS = [f for f in SpotOut.model_fields if f not in _COMPUTED]
+
+
 def _row_to_out(row, with_distance: bool = False) -> SpotOut:
     spot: Spot = row[0]
-    out = SpotOut.model_validate(spot)
+    out = SpotOut(**{f: getattr(spot, f) for f in _SCALAR_FIELDS})
     out.lat, out.lng = row[1], row[2]
     out.ai_summary = row[3]
     out.tags = list(row[4]) if row[4] else []
