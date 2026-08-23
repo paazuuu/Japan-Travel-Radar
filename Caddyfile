@@ -1,0 +1,20 @@
+# Feature B: reverse proxy (02/15). Terminates TLS and routes to frontend/backend.
+# Local dev: `docker compose --profile proxy up` then visit http://localhost.
+# Production: replace :80 with your domain to get automatic HTTPS from Caddy.
+
+:80 {
+	# Backend API
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+	handle /health {
+		reverse_proxy backend:8000
+	}
+	# Everything else -> frontend
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	encode gzip
+	log
+}

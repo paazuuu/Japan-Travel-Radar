@@ -24,6 +24,26 @@ def _rows(db: Session, sql: str, params: dict | None = None) -> list[dict]:
     return [dict(r) for r in result.mappings().all()]
 
 
+def _audit(db: Session, action: str, entity: str, entity_id: str, detail: dict) -> None:
+    import json
+    db.execute(
+        text("""
+            INSERT INTO audit_log (action, entity, entity_id, detail, actor)
+            VALUES (:action, :entity, :eid, CAST(:detail AS JSONB), 'admin')
+        """),
+        {"action": action, "entity": entity, "eid": entity_id,
+         "detail": json.dumps(detail, ensure_ascii=False)},
+    )
+
+
+@router.get("/audit-log")
+def audit_log(limit: int = 100, db: Session = Depends(get_db)) -> list[dict]:
+    return _rows(db, """
+        SELECT action, entity, entity_id, detail, actor, created_at
+        FROM audit_log ORDER BY created_at DESC LIMIT :limit
+    """, {"limit": limit})
+
+
 @router.get("/sources")
 def list_sources(db: Session = Depends(get_db)) -> list[dict]:
     return _rows(db, """
@@ -91,6 +111,7 @@ def override_spot(spot_id: uuid.UUID, payload: dict = Body(...), db: Session = D
     if res.first() is None:
         db.rollback()
         raise HTTPException(status_code=404, detail="spot not found")
+    _audit(db, "spot.override", "spots", str(spot_id), {"fields": sorted(fields)})
     db.commit()
     return {"updated": sorted(fields), "spot_id": str(spot_id)}
 
@@ -112,5 +133,6 @@ def review_analysis(spot_id: uuid.UUID, override: dict | None = Body(default=Non
     if res.first() is None:
         db.rollback()
         raise HTTPException(status_code=404, detail="analysis not found")
+    _audit(db, "analysis.review", "spot_analyses", str(spot_id), {"override": override is not None})
     db.commit()
     return {"reviewed": True, "spot_id": str(spot_id)}
