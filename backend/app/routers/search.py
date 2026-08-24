@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import Spot
+from app.routers.spots import _SCALAR_FIELDS
 from app.schemas import SpotOut
 
 router = APIRouter(tags=["search"])
@@ -38,7 +39,9 @@ def search(
     )
     results = []
     for row in db.execute(stmt).all():
-        out = SpotOut.model_validate(row[0])
+        spot = row[0]
+        # build from scalar columns (avoid the Spot.tags relationship collision)
+        out = SpotOut(**{f: getattr(spot, f) for f in _SCALAR_FIELDS})
         out.lat = row[1]
         out.lng = row[2]
         results.append(out)
