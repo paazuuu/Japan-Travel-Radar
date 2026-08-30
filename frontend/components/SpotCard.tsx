@@ -35,7 +35,7 @@ export function SpotCard({ spot }: { spot: Spot }) {
     <a href={`/spots/${spot.id}`} className="card">
       <Thumb src={spot.image_url} alt={spot.name} />
       <div className="section-head">
-        <span className="title">{spot.name}</span>
+        <span className="title clamp-2">{spot.name}</span>
         <ScoreBadge score={spot.trend_score} />
       </div>
       <div className="meta">
@@ -43,10 +43,14 @@ export function SpotCard({ spot }: { spot: Spot }) {
         {spot.distance_m != null ? ` · ${(spot.distance_m / 1000).toFixed(1)}km` : ""}
         {spot.best_season ? ` · ${spot.best_season}` : ""}
       </div>
-      {spot.ai_summary && <div className="small muted">{spot.ai_summary}</div>}
+      {spot.ai_summary && (
+        <div className="small muted clamp-3">
+          <span className="badge ai" style={{ marginRight: "0.35rem" }}>AI</span>
+          {spot.ai_summary}
+        </div>
+      )}
       <div className="meta">予算 {yen(spot.estimated_budget_min)}–{yen(spot.estimated_budget_max)}</div>
       <Tags tags={spot.tags} />
-      {spot.ai_summary && <span className="badge ai">AI要約</span>}
     </a>
   );
 }
@@ -56,11 +60,11 @@ export function RankingCard({ item, rank }: { item: RankingItem; rank: number })
     <a href={`/spots/${item.id}`} className="card">
       <Thumb src={item.image_url} alt={item.name} />
       <div className="section-head">
-        <span className="title">{rank}. {item.name}</span>
+        <span className="title clamp-2">{rank}. {item.name}</span>
         <ScoreBadge score={item.trend_score} reference={item.is_reference} />
       </div>
       <div className="meta">{item.category ?? "—"} · {item.score_date}</div>
-      {item.ai_summary && <div className="small muted">{item.ai_summary}</div>}
+      {item.ai_summary && <div className="small muted clamp-3">{item.ai_summary}</div>}
       <div className="small muted">成長 {item.growth_score.toFixed(0)} · 季節 {item.seasonality_score.toFixed(0)} · 新規 {item.novelty_score.toFixed(0)}</div>
       <div className="bar"><span style={{ width: `${Math.min(100, item.trend_score)}%` }} /></div>
     </a>

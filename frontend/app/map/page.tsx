@@ -81,16 +81,18 @@ export default function MapPage() {
         <h1>地図</h1>
         <span className="small muted">{count != null ? `${count} スポット` : ""}</span>
       </div>
-      <div className="tabs">
+      <div className="tabs" role="tablist" aria-label="カテゴリ">
         {CATEGORIES.map((c) => (
-          <a
+          <button
             key={c || "all"}
+            type="button"
+            role="tab"
+            aria-selected={c === category}
             onClick={() => setCategory(c)}
             className={c === category ? "active" : ""}
-            style={{ cursor: "pointer" }}
           >
             {c || "すべて"}
-          </a>
+          </button>
         ))}
       </div>
       {error && <p className="muted small">地図データの取得に失敗しました: {error}</p>}
