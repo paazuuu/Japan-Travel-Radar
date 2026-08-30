@@ -21,6 +21,15 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* keyboard accessibility: visible focus ring on all interactive elements */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .container { max-width: 1000px; margin: 0 auto; padding: 1rem; }
 
 header.nav {
@@ -36,6 +45,7 @@ header.nav {
 
 h1 { font-size: 1.4rem; margin: 0.5rem 0 1rem; }
 h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+.lead { color: var(--muted); font-size: 0.95rem; margin: -0.5rem 0 1.25rem; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.75rem; }
 
@@ -45,10 +55,20 @@ h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
   border-radius: 12px;
   padding: 0.85rem;
   display: flex; flex-direction: column; gap: 0.4rem;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
-.card:hover { border-color: #334155; }
-.card .title { font-weight: 600; }
+.card:hover {
+  border-color: #334155;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.card .title { font-weight: 600; line-height: 1.3; }
 .card .meta { color: var(--muted); font-size: 0.8rem; }
+
+/* clamp long text so cards in a grid keep even heights */
+.clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
 .thumb {
   width: 100%; height: 140px; object-fit: cover;
@@ -76,8 +96,14 @@ h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
 .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); }
 
 .tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.tabs a { padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
-.tabs a.active { background: var(--accent); color: #04121f; border-color: var(--accent); font-weight: 600; }
+.tabs a, .tabs button {
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 0.85rem; cursor: pointer;
+  font-family: inherit; line-height: 1.4;
+}
+.tabs a:hover, .tabs button:hover { color: var(--text); border-color: #334155; }
+.tabs a.active, .tabs button.active { background: var(--accent); color: #04121f; border-color: var(--accent); font-weight: 600; }
 
 .muted { color: var(--muted); }
 .small { font-size: 0.8rem; }

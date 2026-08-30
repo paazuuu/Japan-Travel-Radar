@@ -33,6 +33,7 @@ export default async function Home() {
   return (
     <main>
       <h1>今行く価値のある場所</h1>
+      <p className="lead">急上昇・季節・イベントをAIが横断分析。関西発の日帰り旅先を今日のスコアで見つけます。</p>
       {empty && (
         <p className="muted small">
           データがまだありません。<code>./scripts/seed.sh</code> と
@@ -74,9 +75,9 @@ export default async function Home() {
         <div className="grid">
           {(events ?? []).slice(0, 6).map((e) => (
             <a key={e.id} href="/events" className="card">
-              <div className="title">{e.name}</div>
+              <div className="title clamp-2">{e.name}</div>
               <div className="meta">📅 {e.start_at ?? "日程未定"}{e.subcategory ? ` · ${e.subcategory}` : ""}</div>
-              {e.description && <div className="small muted">{e.description}</div>}
+              {e.description && <div className="small muted clamp-3">{e.description}</div>}
             </a>
           ))}
         </div>
