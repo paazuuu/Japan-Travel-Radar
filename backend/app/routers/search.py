@@ -1,48 +1,63 @@
-"""Simple text search over spots (name / name_en / description)."""
+"""Typo-tolerant, relevance-ranked search over spots.
+
+Upgrades the former naive substring match to use the pg_trgm trigram
+similarity already enabled in the DB (GIN index `idx_spots_name_trgm`),
+so queries tolerate typos/partial kana and results are ordered by relevance.
+Matching spans name / name_en / description and the AI-analysis tags.
+"""
 
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query
-from geoalchemy2 import Geometry
-from sqlalchemy import cast, func, or_, select
+from sqlalchemy import case, func, or_
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import Spot
-from app.routers.spots import _SCALAR_FIELDS
+from app.models import SpotAnalysis as _A
+from app.routers.spots import _base_select, _row_to_out
 from app.schemas import SpotOut
 
 router = APIRouter(tags=["search"])
 
-_LAT = func.ST_Y(cast(Spot.location, Geometry))
-_LNG = func.ST_X(cast(Spot.location, Geometry))
+# trigram similarity floor for a fuzzy name hit (lower = more tolerant recall)
+_SIM_THRESHOLD = 0.2
 
 
 @router.get("/search", response_model=list[SpotOut])
 def search(
     q: str = Query(..., min_length=1),
+    category: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     db: Session = Depends(get_db),
 ) -> list[SpotOut]:
     like = f"%{q}%"
+    # relevance = trigram similarity, boosted by a direct substring hit and an
+    # exact AI-tag membership hit so those rank above a loose fuzzy match.
+    sim = func.greatest(
+        func.similarity(Spot.name, q),
+        func.similarity(func.coalesce(Spot.name_en, ""), q),
+    )
+    relevance = (
+        sim
+        + case((Spot.name.ilike(like), 0.3), else_=0.0)
+        + case((_A.tags.has_key(q), 0.4), else_=0.0)
+    ).label("relevance")
+
     stmt = (
-        select(Spot, _LAT, _LNG)
+        _base_select(relevance)
         .where(Spot.status == "published")
         .where(
             or_(
+                func.similarity(Spot.name, q) > _SIM_THRESHOLD,  # typo tolerant
                 Spot.name.ilike(like),
-                Spot.name_en.ilike(like),
-                Spot.description.ilike(like),
+                func.coalesce(Spot.name_en, "").ilike(like),
+                func.coalesce(Spot.description, "").ilike(like),
+                _A.tags.has_key(q),  # exact tag membership (JSONB array element)
             )
         )
-        .limit(limit)
     )
-    results = []
-    for row in db.execute(stmt).all():
-        spot = row[0]
-        # build from scalar columns (avoid the Spot.tags relationship collision)
-        out = SpotOut(**{f: getattr(spot, f) for f in _SCALAR_FIELDS})
-        out.lat = row[1]
-        out.lng = row[2]
-        results.append(out)
-    return results
+    if category:
+        stmt = stmt.where(Spot.category == category)
+    stmt = stmt.order_by(relevance.desc(), Spot.updated_at.desc()).limit(limit)
+    return [_row_to_out(r) for r in db.execute(stmt).all()]

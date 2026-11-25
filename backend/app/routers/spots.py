@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -94,6 +95,56 @@ def nearby_spots(
         .limit(limit)
     )
     return [_row_to_out(r, with_distance=True) for r in db.execute(stmt).all()]
+
+
+def _haversine_km(a_lat, a_lng, b_lat, b_lng) -> float | None:
+    if None in (a_lat, a_lng, b_lat, b_lng):
+        return None
+    r = 6371.0
+    p1, p2 = math.radians(a_lat), math.radians(b_lat)
+    dphi = math.radians(b_lat - a_lat)
+    dlmb = math.radians(b_lng - a_lng)
+    h = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
+    return 2 * r * math.asin(min(1.0, math.sqrt(h)))
+
+
+@router.get("/{spot_id}/similar", response_model=list[SpotOut])
+def similar_spots(
+    spot_id: uuid.UUID,
+    limit: int = Query(default=6, ge=1, le=50),
+    db: Session = Depends(get_db),
+) -> list[SpotOut]:
+    """Content-based recommendations: shared AI tags + travel types + category,
+    with a mild proximity bonus. Pure ranking over existing data (no ML)."""
+    src = db.execute(_base_select().where(Spot.id == spot_id)).first()
+    if src is None:
+        raise HTTPException(status_code=404, detail="spot not found")
+    src_spot: Spot = src[0]
+    src_lat, src_lng = src[1], src[2]
+    src_tags = set(src[4] or [])
+    src_types = set(src[5] or [])
+
+    # candidate pool: same category when known (keeps it relevant + bounded),
+    # otherwise the most recently updated published spots.
+    stmt = _base_select().where(Spot.status == "published").where(Spot.id != spot_id)
+    if src_spot.category:
+        stmt = stmt.where(Spot.category == src_spot.category)
+    stmt = stmt.order_by(Spot.updated_at.desc()).limit(400)
+
+    scored: list[tuple[float, object]] = []
+    for row in db.execute(stmt).all():
+        tags = set(row[4] or [])
+        types = set(row[5] or [])
+        score = 3.0 * len(src_tags & tags) + 1.0 * len(src_types & types)
+        if src_spot.category and row[0].category == src_spot.category:
+            score += 2.0
+        dist = _haversine_km(src_lat, src_lng, row[1], row[2])
+        if dist is not None:  # up to +1.0 for spots within ~100km
+            score += max(0.0, 1.0 - min(dist, 100.0) / 100.0)
+        scored.append((score, row))
+
+    scored.sort(key=lambda t: t[0], reverse=True)
+    return [_row_to_out(r) for _, r in scored[:limit]]
 
 
 @router.get("/{spot_id}", response_model=SpotOut)
