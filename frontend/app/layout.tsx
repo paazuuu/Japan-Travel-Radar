@@ -20,6 +20,7 @@ export const viewport: Viewport = {
 const links = [
   ["/", "🏠 Home"],
   ["/ranking", "📈 Ranking"],
+  ["/search", "🔍 Search"],
   ["/map", "🗺 Map"],
   ["/food", "🍣 Food"],
   ["/events", "🎆 Events"],

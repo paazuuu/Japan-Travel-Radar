@@ -1,5 +1,5 @@
 import { api, yen } from "../../../lib/api";
-import { Tags, Thumb } from "../../../components/SpotCard";
+import { SpotCard, Tags, Thumb } from "../../../components/SpotCard";
 import { SpotActions } from "../../../components/SpotActions";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,8 @@ export default async function SpotDetail({
     );
   }
 
-  const [nearbySpots, nearbyFood] = await Promise.all([
+  const [similar, nearbySpots, nearbyFood] = await Promise.all([
+    api.similarSpots(spot.id, 6),
     spot.lat != null && spot.lng != null ? api.nearbySpots(spot.lat, spot.lng, 5000) : Promise.resolve([]),
     spot.lat != null && spot.lng != null ? api.nearbyRestaurants(spot.lat, spot.lng, "&radius=5000") : Promise.resolve([]),
   ]);
@@ -63,6 +64,16 @@ export default async function SpotDetail({
           <a className="badge ai" href={`/content?spot=${spot.id}`}>中国語コンテンツ生成</a>
         </div>
       </div>
+
+      {(similar ?? []).length > 0 && (
+        <>
+          <h2>似たスポット</h2>
+          <p className="small muted">AIタグ・旅行タイプ・カテゴリが近いスポットです。</p>
+          <div className="grid">
+            {(similar ?? []).map((s) => <SpotCard key={s.id} spot={s} />)}
+          </div>
+        </>
+      )}
 
       <h2>近くのグルメ</h2>
       <div className="grid">

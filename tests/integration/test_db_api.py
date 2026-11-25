@@ -93,3 +93,27 @@ def test_admin_requires_key(client):
     key = os.environ["ADMIN_API_KEY"]
     stats = client.get("/api/v1/admin/stats", headers={"X-Admin-Key": key}).json()
     assert stats["spots"] >= 20
+
+
+def test_search_relevance_and_enrichment(client):
+    first = client.get("/api/v1/spots?limit=1").json()[0]
+    frag = first["name"][:2]  # a real fragment of a seeded spot name
+    results = client.get("/api/v1/search", params={"q": frag}).json()
+    assert isinstance(results, list) and len(results) >= 1
+    # the source spot is found by a fragment of its own name (substring branch)
+    assert any(s["id"] == first["id"] for s in results)
+    # results are AI-enriched (analysis joined), not bare scalar columns
+    assert "tags" in results[0] and "ai_summary" in results[0]
+    # a nonsense query returns an empty list, not an error
+    assert client.get("/api/v1/search", params={"q": "zzzqqxx"}).json() == []
+
+
+def test_similar_excludes_self_and_handles_missing(client):
+    import uuid as _uuid
+
+    first = client.get("/api/v1/spots?limit=1").json()[0]
+    similar = client.get(f"/api/v1/spots/{first['id']}/similar", params={"limit": 5}).json()
+    assert isinstance(similar, list) and len(similar) <= 5
+    assert all(s["id"] != first["id"] for s in similar)  # never recommends itself
+    # unknown spot id -> 404
+    assert client.get(f"/api/v1/spots/{_uuid.uuid4()}/similar").status_code == 404

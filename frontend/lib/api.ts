@@ -110,6 +110,12 @@ export const api = {
     getJSON<RankingItem[]>(`${serverBase()}/api/v1/rankings/${kind}?limit=12${params}`),
   spots: (params = "") => getJSON<Spot[]>(`${serverBase()}/api/v1/spots?${params}`),
   spot: (id: string) => getJSON<Spot>(`${serverBase()}/api/v1/spots/${id}`),
+  similarSpots: (id: string, limit = 6) =>
+    getJSON<Spot[]>(`${serverBase()}/api/v1/spots/${id}/similar?limit=${limit}`),
+  search: (q: string, category = "") =>
+    getJSON<Spot[]>(
+      `${serverBase()}/api/v1/search?q=${encodeURIComponent(q)}${category ? `&category=${encodeURIComponent(category)}` : ""}`
+    ),
   nearbySpots: (lat: number, lng: number, radius = 8000) =>
     getJSON<Spot[]>(`${serverBase()}/api/v1/spots/nearby?lat=${lat}&lng=${lng}&radius=${radius}`),
   nearbyRestaurants: (lat: number, lng: number, extra = "") =>
